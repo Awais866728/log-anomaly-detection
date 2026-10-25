@@ -1,5 +1,5 @@
 dataset,drain_templates,true_templates,grouping_accuracy_pct
 HDFS,16,14,99.75
 BGL,105,120,96.85
-OpenSSH,23,27,71.8
+OpenSSH,24,27,92.5
 Apache,6,6,100.0

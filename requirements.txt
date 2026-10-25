@@ -1,6 +1,14 @@
+# CPU-only PyTorch wheels (avoids the multi-GB CUDA build)
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 pandas
 numpy
 scikit-learn
 drain3
 matplotlib
 jupyter
+torch
+shap
+imbalanced-learn
+joblib
+pytest

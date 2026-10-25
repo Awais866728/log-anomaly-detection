@@ -1,0 +1,106 @@
+column,template
+E1,instruction cache parity error corrected
+E2,<NUM> double-hummer alignment exceptions
+E3,"CE sym <NUM>, at <HEX>, mask <HEX>"
+E4,ciod: failed to read message prefix on control stream (CioStream socket to <IP>
+E5,generating core.<NUM>
+E6,force load/store alignment...............<NUM>
+E7,ciod: cpu <NUM> at treeaddr <NUM> sent unrecognized message <HEX>
+E8,ciod: LOGIN <*> failed: No such file or directory
+E9,"<NUM> ddr errors(s) detected and corrected on rank <NUM>, symbol <NUM>, bit <NUM>"
+E10,data TLB error interrupt
+E11,ciod: Message code <NUM> is not <NUM> or <NUM>
+E12,data storage interrupt
+E13,instruction address: <HEX>
+E14,data address: <HEX>
+E15,machine check: i-fetch......................<NUM>
+E16,program interrupt: <*> <*>
+E17,exception syndrome register: <HEX>
+E18,data store interrupt caused by <*>
+E19,store operation.............................<NUM>
+E20,machine state register: <HEX>
+E21,"problem state (<NUM>=sup,<NUM>=usr).......<NUM>"
+E22,floating point instr. enabled.....<NUM>
+E23,auxiliary processor.........................<NUM>
+E24,machine check enable..............<NUM>
+E25,floating pt ex mode <NUM> enable......<NUM>
+E26,debug interrupt enable............<NUM>
+E27,byte ordering exception.....................<NUM>
+E28,data address space................<NUM>
+E29,core configuration register: <HEX>
+E30,program interrupt: fp cr update.............<NUM>
+E31,guaranteed <*> cache block <*>
+E32,program interrupt: fp cr field .............<NUM>
+E33,icache prefetch <*>
+E34,wait state enable.................<NUM>
+E35,critical input interrupt enable...<NUM>
+E36,special purpose registers:
+E37,lr:00004ed0 cr:<NUM> xer:<NUM> ctr:<NUM>
+E38,rts internal error
+E39,debug wait enable.................<NUM>
+E40,instruction address space.........<NUM>
+E41,disable store gathering..................<NUM>
+E42,total of <NUM> ddr error(s) detected and corrected
+E43,"ciod: Error loading <*> invalid or missing program image, No such file or directory"
+E44,ciod: Error creating node map from file <*> <*> <*> <*>
+E45,program interrupt
+E46,Node card is not fully functional
+E47,Ido chip status changed: <*> ip=<IP> v=<NUM> t=<NUM> status=M <*> <*> <NUM> <NUM>:<NUM>:<NUM> PDT <NUM>
+E48,Can not get assembly information for node card
+E49,ciod: Missing or invalid fields on line <NUM> of node map file <*>
+E50,<NUM> torus receiver <*> input pipe error(s) (dcr <HEX>) detected and corrected
+E51,ciod: <*> <*> <NUM> <*> <*> <*> <*> at line <NUM> of node map file <*>
+E52,rts panic! - stopping execution
+E53,ciod: Error creating node map from file /home/pakin1/sweep3d-<NUM>.2b/results/random1-8x32x32x2.map: Permission denied
+E54,"rts: kernel terminated for reason 1001rts: bad message header: invalid cpu, type=<NUM>, cpu=<NUM>, index=<NUM>, total=<NUM>"
+E55,<NUM> floating point alignment exceptions
+E56,New ido chip inserted into the database: <*> ip=<IP> v=<NUM> t=<NUM>
+E57,NodeCard is not fully functional
+E58,"Node card status: ALERT <NUM>, ALERT <NUM>, ALERT <NUM>, ALERT <NUM> is (are) active. Clock Mode is Low. Clock Select is Midplane. Phy JTAG Reset is asserted. ASIC JTAG Reset is not asserted. Temperature Mask is not active. No temperature error. Temperature Limit Error Latch is clear. PGOOD is asserted. PGOOD error latch is clear. MPGOOD is OK. MPGOOD error latch is clear. The <NUM>.<NUM> volt rail is OK. The <NUM>.<NUM> volt rail is OK."
+E59,Node card VPD check: <*> node in processor card slot <*> do not match. VPD ecid <*> found <*>
+E60,"idoproxydb hit ASSERT condition: ASSERT expression=<NUM> Source file=idotransportmgr.cpp Source line=<NUM> Function=int IdoTransportMgr::SendPacket(IdoUdpMgr*, BglCtlPavTrace*)"
+E61,Node card status: no ALERTs are active. Clock Mode is Low. Clock Select is Midplane. Phy JTAG Reset is asserted. ASIC JTAG Reset is asserted. Temperature Mask is not active. No temperature error. Temperature Limit Error Latch is clear. PGOOD IS NOT ASSERTED. PGOOD ERROR LATCH IS ACTIVE. MPGOOD IS NOT OK. MPGOOD ERROR LATCH IS ACTIVE. The <NUM>.<NUM> volt rail is OK. The <NUM>.<NUM> volt rail is OK.
+E62,"PrepareForService shutting down NodeCard(mLctn(R25-M1-N2), mCardSernum(203231503833343000000000594c31304b34333431303158), mLp(FF:F2:9F:<NUM>:CF:0F:<NUM>:0D:<NUM>:E9:<NUM>:F0), mIp(<IP>), mType(<NUM>)) as part of Service Action <NUM>"
+E63,rts tree/torus link training failed: wanted: B C X+ X- Y+ Y- Z+ Z- got: B C X- Y- Z+ Z-
+E64,<NUM> tree receiver <NUM> in re-synch state event(s) (dcr <HEX>) detected
+E65,"ciod: Error loading <*> invalid or missing program image, Exec format error"
+E66,ciod: Error reading message prefix after LOAD_MESSAGE on CioStream socket to <IP>: Link has been severed
+E67,rts: kernel terminated for reason <NUM>
+E68,ciod: generated <NUM> core files for program <*>
+E69,iar <*> dear <*>
+E70,"NFS Mount failed on <*> slept <NUM> seconds, retrying (<NUM>)"
+E71,Lustre mount FAILED : <*> : point /p/gb1
+E72,ciod: pollControlDescriptors: Detected the debugger died.
+E73,"ciod: In packet from node <NUM>.<NUM> (R62-M1-Nf-C:J03-U11), message code <NUM> is not <NUM> or <NUM> (softheader=003b005b <NUM> <NUM> <NUM>)"
+E74,suppressing further interrupts of same type
+E75,rts: bad message header: expecting type <NUM> instead of type <NUM> (softheader=00131db8 81aa0003 <NUM> <NUM>) PSR0=00001f01 PSR1=<NUM> PRXF=<NUM> PIXF=<NUM>
+E76,critical input interrupt (unit=<HEX> bit=<HEX>): warning for torus <*> wire
+E77,"ciod: Error loading <*> invalid or missing program image, Permission denied"
+E78,data cache search parity error detected. attempting to correct
+E79,shutdown complete
+E80,"Error receiving packet on tree network, expecting type <NUM> instead of type <NUM> <*> <*> <NUM> <NUM>) <*> PSR1=<NUM> PRXF=<NUM> PIXF=<NUM>"
+E81,<NUM> L3 EDRAM error(s) (dcr <HEX>) detected and corrected
+E82,"critical input interrupt (unit=<HEX> bit=<HEX>): warning for <*> <*> wire, suppressing further interrupts of same type"
+E83,<NUM> torus sender z- retransmission error(s) (dcr <HEX>) detected and corrected over <NUM> seconds
+E84,"ciod: Received signal <NUM>, code=<NUM>, errno=<NUM>, address=<HEX>"
+E85,Lustre mount FAILED : <*> : block_id : location
+E86,MACHINE CHECK DCR read timeout (mc=e08x iar <HEX> lr <HEX>)
+E87,"ciod: Error reading message prefix on CioStream socket to <IP>, Connection timed out"
+E88,"ciod: Error reading message prefix on CioStream socket to <IP>, <*> <*> <*> <*>"
+E89,dbcr0=<HEX> dbsr=<HEX> ccr0=<HEX>
+E90,r24=<HEX> r25=<HEX> r26=<HEX> r27=<HEX>
+E91,<NUM> tree receiver <NUM> in re-synch state event(s) (dcr <HEX>) detected over <NUM> seconds
+E92,<NUM> microseconds spent in the rbs signal handler during <NUM> calls. <NUM> microseconds was the maximum time for a single instance of a correctable ddr.
+E93,"<NUM> total interrupts. <NUM> critical input interrupts. <NUM> microseconds total spent on critical input interrupts, <NUM> microseconds max time in a critical input interrupt."
+E94,"<NUM> ddr error(s) detected and corrected on rank <NUM>, symbol <NUM> over <NUM> seconds"
+E95,"PrepareForService shutting down Node card(mLctn(R10-M1-N2), mCardSernum(203231503833343000000000594c31304b34323934303257), mLp(FF:F2:9F:<NUM>:E0:DA:<NUM>:0D:<NUM>:E9:1F:<NUM>), mIp(<IP>), mType(<NUM>)) as part of Service Action <NUM>"
+E96,"Kernel detected <NUM> integer alignment exceptions (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX> (<NUM>) iar <HEX>, dear <HEX>"
+E97,total of <NUM> ddr error(s) detected and corrected over <NUM> seconds
+E98,minus normalized number..................<NUM>
+E99,fraction rounded.........................<NUM>
+E100,size of scratchpad portion of L3.........<NUM> (0M)
+E101,ciod: LOGIN chdir(/p/gb1/stella/RAPTOR/<NUM>) failed: Input/output error
+E102,<NUM> L3 EDRAM error(s) (dcr <HEX>) detected and corrected over <NUM> seconds
+E103,"ciod: Error loading /g/g24/buber/Yunsic/BlueGene/partad.develf/taddriver.<NUM>.exe: program image too big, <NUM> > <NUM>"
+E104,fpr29=<HEX> ffffffff ffffffff ffffffff
+E105,Machine State Register: <HEX>

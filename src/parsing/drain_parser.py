@@ -32,6 +32,27 @@ MASKING_INSTRUCTIONS = [
     MaskingInstruction(r"((?<=[^A-Za-z0-9])|^)([\-\+]?\d+)((?=[^A-Za-z0-9])|$)", "NUM"),
 ]
 
+# Extra masks for a single dataset, applied before the shared ones.
+DATASET_MASKING = {
+    "OpenSSH": [
+        # "invalid user admin", "session closed for user root"; only the word right after,
+        # so a user literally named "user" doesn't also mask the next token
+        MaskingInstruction(r"(?:(?<=\b[Ii]nvalid user )|(?<=\bfor user ))[^\s=]+", "USER"),
+        # "... ruser= rhost=1.2.3.4 user=root"
+        MaskingInstruction(r"(?<=\buser=)\S+", "USER"),
+        # "Failed password for root", "failures for admin [preauth]"; not "for invalid user ..."
+        MaskingInstruction(r"(?<=\bfor )(?!(?:invalid|user)\b)[^\s\[]+", "USER"),
+        MaskingInstruction(r"(?<=\bport )\d+", "PORT"),
+        # "session 4a3f9c" / "Session 12"; requires a digit so words like "added" aren't masked
+        MaskingInstruction(r"(?<=\b[Ss]ession )(?=[0-9a-fA-F]*\d)[0-9a-fA-F]+\b", "SESSION"),
+    ],
+}
+
+DEFAULT_SIM_TH = 0.4
+# OpenSSH has many templates that differ by a single constant word ("Failed password"
+# vs "Failed none", "Bye Bye [preauth]" vs "disconnected by user"), which Drain merges at 0.4.
+DATASET_SIM_TH = {"OpenSSH": 0.7}
+
 
 def extract_content(line, dataset):
     """Return the message part of a raw log line, or None if the line doesn't match the format."""
@@ -39,19 +60,25 @@ def extract_content(line, dataset):
     return match.group("content").strip() if match else None
 
 
-def build_template_miner(sim_th=0.4, depth=4):
+def masking_for(dataset=None, use_dataset_masks=True):
+    extra = DATASET_MASKING.get(dataset, []) if use_dataset_masks else []
+    return extra + MASKING_INSTRUCTIONS
+
+
+def build_template_miner(dataset=None, sim_th=None, depth=4, use_dataset_masks=True):
+    """Drain3 miner for a dataset; ``sim_th=None`` uses the dataset's tuned threshold."""
     config = TemplateMinerConfig()
-    config.drain_sim_th = sim_th
+    config.drain_sim_th = sim_th if sim_th is not None else DATASET_SIM_TH.get(dataset, DEFAULT_SIM_TH)
     config.drain_depth = depth
-    config.masking_instructions = list(MASKING_INSTRUCTIONS)
+    config.masking_instructions = masking_for(dataset, use_dataset_masks)
     return TemplateMiner(config=config)
 
 
 class DrainParser:
     """Incremental Drain3 parser: feed messages one by one with ``parse``."""
 
-    def __init__(self, sim_th=0.4, depth=4):
-        self.miner = build_template_miner(sim_th, depth)
+    def __init__(self, dataset=None, sim_th=None, depth=4, use_dataset_masks=True):
+        self.miner = build_template_miner(dataset, sim_th, depth, use_dataset_masks)
 
     def parse(self, message):
         """Add a message and return (cluster_id, current template of its cluster)."""
@@ -66,13 +93,13 @@ class DrainParser:
         return len(self.miner.drain.clusters)
 
 
-def parse_log_file(path, dataset, sim_th=0.4, depth=4):
+def parse_log_file(path, dataset, sim_th=None, depth=4, use_dataset_masks=True):
     """Parse a raw log file into a DataFrame with one row per line.
 
     ``Template`` is each cluster's final template (after all lines were seen), since
     Drain generalises templates as more lines join a cluster.
     """
-    parser = DrainParser(sim_th, depth)
+    parser = DrainParser(dataset, sim_th, depth, use_dataset_masks)
     rows = []
     with open(Path(path), encoding="utf-8", errors="replace") as f:
         for line_id, line in enumerate(f, start=1):
