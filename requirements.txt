@@ -2,6 +2,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 pandas
+pyarrow
 numpy
 scikit-learn
 drain3
@@ -11,4 +12,5 @@ torch
 shap
 imbalanced-learn
 joblib
+tqdm
 pytest
