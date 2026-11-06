@@ -1,0 +1,4 @@
+method,precision,recall,f1,false_alarm_rate,roc_auc,train_seconds
+No imbalance handling,1.0,0.9984,0.9992,0.0,1.0,3.7782
+class_weight='balanced',1.0,0.9984,0.9992,0.0,1.0,4.4531
+SMOTE,0.9655,0.9989,0.9819,0.0008,1.0,10.1778
