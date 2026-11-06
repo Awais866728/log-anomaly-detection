@@ -1,7 +1,4 @@
-"""Turn parsed log lines into fixed-window event-count features.
-
-Run from the project root:  python -m src.features.build_features
-"""
+"""Build fixed-window event-count features. Run: python -m src.features.build_features"""
 
 from pathlib import Path
 
@@ -15,24 +12,20 @@ PROCESSED = ROOT / "data" / "processed"
 
 
 def bgl_line_labels(path):
-    """BGL lines start with their label: '-' for normal, an alert category otherwise."""
+    """First token of each BGL line: '-' for normal, otherwise an alert type."""
     with open(path, encoding="utf-8", errors="replace") as f:
         return [line.split(maxsplit=1)[0] for line in f if line.strip()]
 
 
 def window_event_counts(cluster_ids, line_is_anomaly, window_size=20):
-    """Split lines in order into windows of ``window_size`` and count each template per window.
-
-    Returns (X, y): X has one row per window and one column per template ("E<cluster id>"),
-    y is 1 if any line in the window is an anomaly. A final partial window is dropped.
-    """
+    """Count templates per fixed window; y=1 if any line in the window is anomalous."""
     lines = pd.DataFrame({"ClusterId": list(cluster_ids), "Anomaly": list(line_is_anomaly)})
     n_windows = len(lines) // window_size
-    lines = lines.iloc[: n_windows * window_size]
+    lines = lines.iloc[: n_windows * window_size]  # drop the last partial window
     lines["Window"] = lines.index // window_size
 
     X = pd.crosstab(lines["Window"], lines["ClusterId"])
-    # Keep a column for every template, even ones only seen in a dropped partial window
+    # keep templates that only appeared in the dropped partial window
     all_ids = sorted(set(cluster_ids))
     X = X.reindex(columns=all_ids, fill_value=0)
     X.columns = [f"E{cid}" for cid in all_ids]

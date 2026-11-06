@@ -1,8 +1,4 @@
-"""Log message extraction and Drain3 template mining.
-
-Shared by the batch notebooks and the live streaming system, so everything here
-works one line at a time (``DrainParser.parse``) as well as on whole files.
-"""
+"""Log message extraction and Drain3 template mining."""
 
 import re
 from pathlib import Path
@@ -12,7 +8,7 @@ from drain3 import TemplateMiner
 from drain3.masking import MaskingInstruction
 from drain3.template_miner_config import TemplateMinerConfig
 
-# Header layout of each Loghub dataset; the "content" group is the log message.
+# The "content" group is the log message.
 LOG_FORMATS = {
     # 081109 203615 148 INFO dfs.DataNode$PacketResponder: <content>
     "HDFS": re.compile(r"^\d+\s+\d+\s+\d+\s+\S+\s+\S+:\s+(?P<content>.*)$"),
@@ -24,7 +20,7 @@ LOG_FORMATS = {
     "Apache": re.compile(r"^\[[^\]]*\]\s+\[[^\]]*\]\s+(?P<content>.*)$"),
 }
 
-# Applied in order, so the specific patterns run before the generic number mask.
+# Order matters: specific patterns run before the generic number mask.
 MASKING_INSTRUCTIONS = [
     MaskingInstruction(r"blk_-?\d+", "BLK"),
     MaskingInstruction(r"((?<=[^A-Za-z0-9])|^)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?((?=[^A-Za-z0-9])|$)", "IP"),
@@ -32,30 +28,28 @@ MASKING_INSTRUCTIONS = [
     MaskingInstruction(r"((?<=[^A-Za-z0-9])|^)([\-\+]?\d+)((?=[^A-Za-z0-9])|$)", "NUM"),
 ]
 
-# Extra masks for a single dataset, applied before the shared ones.
+# Dataset-specific masks, applied before the shared ones.
 DATASET_MASKING = {
     "OpenSSH": [
-        # "invalid user admin", "session closed for user root"; only the word right after,
-        # so a user literally named "user" doesn't also mask the next token
+        # only the word right after "invalid user" / "for user"
         MaskingInstruction(r"(?:(?<=\b[Ii]nvalid user )|(?<=\bfor user ))[^\s=]+", "USER"),
         # "... ruser= rhost=1.2.3.4 user=root"
         MaskingInstruction(r"(?<=\buser=)\S+", "USER"),
-        # "Failed password for root", "failures for admin [preauth]"; not "for invalid user ..."
+        # "Failed password for root", but not "for invalid user ..."
         MaskingInstruction(r"(?<=\bfor )(?!(?:invalid|user)\b)[^\s\[]+", "USER"),
         MaskingInstruction(r"(?<=\bport )\d+", "PORT"),
-        # "session 4a3f9c" / "Session 12"; requires a digit so words like "added" aren't masked
+        # needs a digit so words like "added" aren't masked
         MaskingInstruction(r"(?<=\b[Ss]ession )(?=[0-9a-fA-F]*\d)[0-9a-fA-F]+\b", "SESSION"),
     ],
 }
 
 DEFAULT_SIM_TH = 0.4
-# OpenSSH has many templates that differ by a single constant word ("Failed password"
-# vs "Failed none", "Bye Bye [preauth]" vs "disconnected by user"), which Drain merges at 0.4.
+# OpenSSH templates often differ by one word, which Drain merges at 0.4.
 DATASET_SIM_TH = {"OpenSSH": 0.7}
 
 
 def extract_content(line, dataset):
-    """Return the message part of a raw log line, or None if the line doesn't match the format."""
+    """Return the message part of a log line, or None if it doesn't match."""
     match = LOG_FORMATS[dataset].match(line.rstrip("\r\n"))
     return match.group("content").strip() if match else None
 
@@ -66,7 +60,7 @@ def masking_for(dataset=None, use_dataset_masks=True):
 
 
 def build_template_miner(dataset=None, sim_th=None, depth=4, use_dataset_masks=True):
-    """Drain3 miner for a dataset; ``sim_th=None`` uses the dataset's tuned threshold."""
+    """Build a Drain3 miner; sim_th=None uses the dataset's default."""
     config = TemplateMinerConfig()
     config.drain_sim_th = sim_th if sim_th is not None else DATASET_SIM_TH.get(dataset, DEFAULT_SIM_TH)
     config.drain_depth = depth
@@ -75,13 +69,13 @@ def build_template_miner(dataset=None, sim_th=None, depth=4, use_dataset_masks=T
 
 
 class DrainParser:
-    """Incremental Drain3 parser: feed messages one by one with ``parse``."""
+    """Incremental Drain3 parser."""
 
     def __init__(self, dataset=None, sim_th=None, depth=4, use_dataset_masks=True):
         self.miner = build_template_miner(dataset, sim_th, depth, use_dataset_masks)
 
     def parse(self, message):
-        """Add a message and return (cluster_id, current template of its cluster)."""
+        """Return (cluster_id, current template) for a message."""
         result = self.miner.add_log_message(message)
         return result["cluster_id"], result["template_mined"]
 
@@ -94,11 +88,7 @@ class DrainParser:
 
 
 def parse_log_file(path, dataset, sim_th=None, depth=4, use_dataset_masks=True):
-    """Parse a raw log file into a DataFrame with one row per line.
-
-    ``Template`` is each cluster's final template (after all lines were seen), since
-    Drain generalises templates as more lines join a cluster.
-    """
+    """Parse a raw log file into a DataFrame with one row per line."""
     parser = DrainParser(dataset, sim_th, depth, use_dataset_masks)
     rows = []
     with open(Path(path), encoding="utf-8", errors="replace") as f:
@@ -110,15 +100,13 @@ def parse_log_file(path, dataset, sim_th=None, depth=4, use_dataset_masks=True):
             rows.append({"LineId": line_id, "Raw": line.rstrip("\r\n"), "Content": content, "ClusterId": cluster_id})
 
     df = pd.DataFrame(rows)
+    # use final templates, since Drain generalises them as lines are added
     df["Template"] = df["ClusterId"].map(lambda cid: parser.template(cid) if pd.notna(cid) else None)
     return df
 
 
 def grouping_accuracy(true_ids, pred_ids):
-    """Fraction of lines whose predicted group contains exactly the lines of their true group.
-
-    This is the Grouping Accuracy metric from the Loghub parsing benchmark.
-    """
+    """Loghub grouping accuracy: share of lines whose predicted group matches their true group exactly."""
     df = pd.DataFrame({"true": list(true_ids), "pred": list(pred_ids)})
     true_sizes = df["true"].value_counts()
     correct = 0
