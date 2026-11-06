@@ -4,15 +4,12 @@ import numpy as np
 
 
 def _safe_div(num, den):
+    # 0.0 instead of NaN/ZeroDivisionError, e.g. precision when nothing is predicted as anomaly
     return num / den if den else 0.0
 
 
 def evaluate(y_true, y_pred):
-    """Return precision, recall, F1, false alarm rate and the confusion matrix counts.
-
-    Ratios whose denominator is zero are reported as 0.0 instead of raising or
-    returning NaN, e.g. precision when the model predicts no anomalies at all.
-    """
+    """Return precision, recall, F1, false alarm rate and confusion matrix counts."""
     y_true = np.asarray(y_true).astype(int).ravel()
     y_pred = np.asarray(y_pred).astype(int).ravel()
     if y_true.shape != y_pred.shape:
