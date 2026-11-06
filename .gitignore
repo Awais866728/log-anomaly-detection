@@ -13,3 +13,6 @@ __pycache__/
 
 # Generated features
 data/processed/*.parquet
+
+# Trained models
+models/*.pt
