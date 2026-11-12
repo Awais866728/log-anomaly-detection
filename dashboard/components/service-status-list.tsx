@@ -1,4 +1,4 @@
-import { StatusBadge } from "@/components/status-badge"
+import { HEALTH_TONE, StatusBadge } from "@/components/status-badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ServiceStatus } from "@/lib/types"
 
@@ -16,7 +16,7 @@ export function ServiceStatusList({ services }: { services: ServiceStatus[] }) {
                 <p className="font-medium">{service.name}</p>
                 <p className="truncate font-mono text-xs text-muted-foreground">{service.container}</p>
               </div>
-              <StatusBadge tone={service.health === "healthy" ? "healthy" : "critical"} label={service.health} />
+              <StatusBadge tone={HEALTH_TONE[service.health]} label={service.health} />
             </li>
           ))}
         </ul>

@@ -2,28 +2,78 @@ export const SERVICE_NAMES = ["nginx", "app", "postgres", "ssh"] as const
 
 export type ServiceName = (typeof SERVICE_NAMES)[number]
 
+// Alerts can also come from offline datasets such as HDFS
+export type AlertSource = ServiceName | "hdfs"
+
 export type Severity = "critical" | "warning"
 
-export type Health = "healthy" | "down"
+export type Health = "healthy" | "warning" | "down"
 
 export interface Kpis {
-  logsPerMinute: number
   avgDetectionLatencyMs: number
+}
+
+export interface EventContribution {
+  template: string
+  count: number
+  normalCount: number
 }
 
 export interface Alert {
   id: string
   time: string
-  service: ServiceName
+  window: string
+  source: AlertSource
   model: string
   severity: Severity
+  status: "open" | "resolved"
+  probability: number
   reason: string
+  events: EventContribution[]
+  logLines: string[]
 }
 
 export interface ServiceStatus {
   name: ServiceName
   container: string
   health: Health
+  uptime: string
+  logsPerMinute: number
+  sparkline: number[]
+}
+
+export interface PipelineStep {
+  name: string
+  detail: string
+  health: Health
+}
+
+export const DATASETS = ["HDFS", "BGL"] as const
+
+export type Dataset = (typeof DATASETS)[number]
+
+export interface Scores {
+  precision: number
+  recall: number
+  f1: number
+}
+
+export interface ModelResult {
+  name: string
+  kind: string
+  description: string
+  scores: Record<Dataset, Scores>
+}
+
+export type LogLevel = "INFO" | "WARN" | "ERROR"
+
+export interface LogLine {
+  id: number
+  time: string
+  service: ServiceName
+  level: LogLevel
+  message: string
+  alertId?: string
 }
 
 // One point per minute: log lines per service

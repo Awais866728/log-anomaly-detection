@@ -1,5 +1,6 @@
-import { PagePlaceholder } from "@/components/page-placeholder"
+import { ModelsView } from "@/components/models-view"
+import { getModelResults } from "@/lib/mock-data"
 
-export default function ModelsPage() {
-  return <PagePlaceholder title="Models" description="Detection models and their evaluation results will appear here." />
+export default async function ModelsPage() {
+  return <ModelsView models={await getModelResults()} />
 }

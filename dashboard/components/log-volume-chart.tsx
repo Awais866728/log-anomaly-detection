@@ -3,43 +3,15 @@
 import { useEffect, useState } from "react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
+import { chartConfigFor, dashFor, SeriesLegend, type Series } from "@/components/chart-series"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartLegend, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { ChartContainer, ChartLegend, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { nextLogVolume } from "@/lib/mock-data"
-import { SERVICE_NAMES, type ServiceName, type VolumePoint } from "@/lib/types"
+import { SERVICE_NAMES, type VolumePoint } from "@/lib/types"
 
 const UPDATE_MS = 3000
-
-// Neutral greys; lines are told apart by shade and dash pattern
-const chartConfig = {
-  nginx: { label: "nginx", theme: { light: "oklch(0.25 0 0)", dark: "oklch(0.95 0 0)" } },
-  app: { label: "app", theme: { light: "oklch(0.45 0 0)", dark: "oklch(0.78 0 0)" } },
-  postgres: { label: "postgres", theme: { light: "oklch(0.6 0 0)", dark: "oklch(0.62 0 0)" } },
-  ssh: { label: "ssh", theme: { light: "oklch(0.72 0 0)", dark: "oklch(0.5 0 0)" } },
-} satisfies ChartConfig
-
-const DASHES: Record<ServiceName, string | undefined> = {
-  nginx: undefined,
-  app: "6 3",
-  postgres: "2 3",
-  ssh: "8 3 2 3",
-}
-
-// Legend with a sample of each line, so the dash patterns are visible (colour squares can't show them)
-function DashLegend() {
-  return (
-    <ul className="flex flex-wrap justify-center gap-x-5 gap-y-1 pt-3 text-xs text-muted-foreground">
-      {SERVICE_NAMES.map((service) => (
-        <li key={service} className="flex items-center gap-1.5">
-          <svg width="20" height="6" aria-hidden>
-            <line x1="0" y1="3" x2="20" y2="3" stroke={`var(--color-${service})`} strokeWidth="2" strokeDasharray={DASHES[service]} />
-          </svg>
-          {chartConfig[service].label}
-        </li>
-      ))}
-    </ul>
-  )
-}
+const SERIES: Series[] = SERVICE_NAMES.map((name, i) => ({ key: name, label: name, style: i }))
+const chartConfig = chartConfigFor(SERIES)
 
 export function LogVolumeChart() {
   const [points, setPoints] = useState<VolumePoint[]>([])
@@ -68,15 +40,15 @@ export function LogVolumeChart() {
             <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} minTickGap={32} />
             <YAxis tickLine={false} axisLine={false} width={40} />
             <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-            <ChartLegend content={<DashLegend />} />
-            {SERVICE_NAMES.map((service) => (
+            <ChartLegend content={<SeriesLegend series={SERIES} />} />
+            {SERIES.map((s) => (
               <Line
-                key={service}
-                dataKey={service}
+                key={s.key}
+                dataKey={s.key}
                 type="monotone"
-                stroke={`var(--color-${service})`}
+                stroke={`var(--color-${s.key})`}
                 strokeWidth={2}
-                strokeDasharray={DASHES[service]}
+                strokeDasharray={dashFor(s)}
                 dot={false}
                 isAnimationActive={false}
               />

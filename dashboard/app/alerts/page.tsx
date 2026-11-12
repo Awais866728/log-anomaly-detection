@@ -1,5 +1,6 @@
-import { PagePlaceholder } from "@/components/page-placeholder"
+import { AlertsExplorer } from "@/components/alerts-explorer"
+import { getAlerts } from "@/lib/mock-data"
 
-export default function AlertsPage() {
-  return <PagePlaceholder title="Alerts" description="The full alert history, with filters by service, model and severity, will appear here." />
+export default async function AlertsPage() {
+  return <AlertsExplorer alerts={await getAlerts()} />
 }
