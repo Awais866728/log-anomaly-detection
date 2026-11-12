@@ -88,16 +88,27 @@ def train(model, X_train, y_train, X_val, y_val, epochs=30, patience=3, batch_si
     return pd.DataFrame(history), time.perf_counter() - start
 
 
-def detect(model, sequences, vocab, train_events, k, h=10, batch_size=4096):
-    """Flag a sequence if any event is outside the model's top-k predictions or was never seen in training."""
-    pred = np.array([any(e not in train_events for e in seq) for seq in sequences])
+def next_event_ranks(model, sequences, vocab, h=10, batch_size=4096):
+    """Rank of each true next event among the model's predictions (0 = top-1), plus the sequence it belongs to."""
     X, y, seq_idx = make_windows(sequences, vocab, h)
-
     model.eval()
-    missed = []
+    ranks = []
     with torch.no_grad():
         for i in range(0, len(y), batch_size):
-            topk = model(X[i : i + batch_size]).topk(k, dim=1).indices
-            missed.append((topk != y[i : i + batch_size, None]).all(dim=1).numpy())
-    pred[seq_idx[np.concatenate(missed)]] = True
+            logits = model(X[i : i + batch_size])
+            target = logits.gather(1, y[i : i + batch_size, None])
+            ranks.append((logits > target).sum(dim=1).numpy())  # events scored above the true one
+    return np.concatenate(ranks), seq_idx
+
+
+def flag(sequences, ranks, seq_idx, known_events, k):
+    """Anomalous if any event is outside the top-k predictions or not in known_events."""
+    pred = np.array([any(e not in known_events for e in seq) for seq in sequences])
+    pred[seq_idx[ranks >= k]] = True
     return pred.astype(int)
+
+
+def detect(model, sequences, vocab, train_events, k, h=10, batch_size=4096):
+    """Flag a sequence if any event is outside the model's top-k predictions or was never seen in training."""
+    ranks, seq_idx = next_event_ranks(model, sequences, vocab, h, batch_size)
+    return flag(sequences, ranks, seq_idx, train_events, k)
