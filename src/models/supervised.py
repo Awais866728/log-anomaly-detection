@@ -42,9 +42,14 @@ def top_importances(model, feature_names, templates, n=10):
     )
 
 
-def shap_top_events(model, x, feature_names, templates, n=3):
+def shap_top_events(model, x, feature_names, templates, n=3, background=None):
     """SHAP contributions to the anomaly class for one sample (1-row DataFrame); returns the top n."""
-    values = shap.TreeExplainer(model).shap_values(x)
+    if background is None:
+        explainer = shap.TreeExplainer(model)
+    else:
+        # needed for very deep trees (e.g. BGL), where the default algorithm gives wrong values
+        explainer = shap.TreeExplainer(model, data=background, feature_perturbation="interventional")
+    values = explainer.shap_values(x)
     # older shap returns a list per class, newer an array (samples, features, classes)
     anomaly = values[1] if isinstance(values, list) else values[..., 1]
     return (
