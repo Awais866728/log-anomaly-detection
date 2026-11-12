@@ -41,6 +41,16 @@ DATASET_MASKING = {
         # needs a digit so words like "added" aren't masked
         MaskingInstruction(r"(?<=\b[Ss]ession )(?=[0-9a-fA-F]*\d)[0-9a-fA-F]+\b", "SESSION"),
     ],
+    "BGL": [
+        # register numbers in dumps: "fpr12=" / "r07=" -> "fpr<NUM>=" / "r<NUM>="
+        MaskingInstruction(r"(?:(?<=\bfpr)|(?<=\br))\d+(?==)", "NUM"),
+        # hex words without 0x, e.g. "c07a533b" or "000017e7": 4+ hex characters with at least one
+        # digit (so "added" or "face" stay) and one letter (plain numbers are left to the NUM mask)
+        MaskingInstruction(
+            r"((?<=[^A-Za-z0-9])|^)(?=[0-9a-fA-F]*\d)(?=[0-9a-fA-F]*[a-fA-F])[0-9a-fA-F]{4,}((?=[^A-Za-z0-9])|$)",
+            "HEX",
+        ),
+    ],
 }
 
 DEFAULT_SIM_TH = 0.4
