@@ -14,3 +14,7 @@ imbalanced-learn
 joblib
 tqdm
 pytest
+
+# traffic for the docker test environment
+locust
+paramiko

@@ -1,58 +1,51 @@
-# Docker services
+# Docker test environment
 
-`docker-compose.yml` runs two services that produce real logs for the project:
+`docker-compose.yml` runs a small web app with an SSH server next to it, to produce real logs for the project.
 
-| Service | Image | Host port | Notes |
-|---|---|---|---|
-| `nginx` | `nginx:1.27-alpine` | http://localhost:8080 | Access and error logs go to the container output |
-| `postgres` | `postgres:16-alpine` | `localhost:5433` | Port 5433 on the host (not 5432), so it doesn't clash with another local Postgres. Data is kept in the `pgdata` volume |
+| Service | What it is | Host port |
+|---|---|---|
+| `nginx` | Reverse proxy: `/` is the nginx home page, `/api/` goes to the app | http://localhost:8080 |
+| `app` | Node.js (Express) app: `GET /` health check, `GET /items`, `POST /items` | only through nginx |
+| `postgres` | Database for the app, data kept in the `pgdata` volume | `localhost:5433` |
+| `ssh` | OpenSSH server with one test user | `127.0.0.1:2222` (this machine only) |
 
-Default database login: user `loguser`, password `logpass`, database `logs`. These are for local use only. To change them, set `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` in your shell or in a `docker/.env` file **before the first start**, because Postgres only reads them when it creates the database.
+Test logins (local use only): database `loguser` / `logpass`, SSH `testuser` / `testpass`. To change them, set `POSTGRES_USER`, `POSTGRES_PASSWORD`, `SSH_USER` and `SSH_PASSWORD` in a `docker/.env` file before the first start.
 
-Run all commands from this `docker/` folder.
+Run the commands from this `docker/` folder, with the project venv active (`source ../venv/bin/activate`).
 
-## Start
-
-```bash
-docker compose up -d --wait
-docker compose ps
-```
-
-`--wait` returns once both containers are running and Postgres reports healthy.
-
-Check that they respond:
+## 1. Start
 
 ```bash
-curl -I http://localhost:8080
-docker compose exec postgres psql -U loguser -d logs -c "select version();"
+docker compose up -d --build --wait
+docker compose ps        # nginx, app, postgres and ssh should be running
+curl http://localhost:8080/api/items
 ```
 
-## Stop
+## 2. Generate normal traffic
+
+Run these two in separate terminals at the same time. Both take 10 minutes.
 
 ```bash
-docker compose stop      # stop the containers, keep them and the data
-docker compose down      # remove the containers, keep the database volume
-docker compose down -v   # remove the containers AND delete the database data
+locust -f locust/locustfile.py --headless -u 20 -r 2 -t 10m --host http://localhost:8080
+python ../scripts/ssh_normal_activity.py --minutes 10 --logins 6
 ```
 
-## View logs
+Locust runs 20 users who mostly read `/api/items`, sometimes add an item and now and then open the home page, waiting 2-8 s between actions. The SSH script logs in 6 times at random moments and runs a couple of ordinary commands each time.
+
+## 3. Collect logs
 
 ```bash
-docker compose logs                      # all services
-docker compose logs nginx                # one service
-docker compose logs --tail 10 postgres   # last 10 lines
-docker compose logs -f nginx             # follow new lines live (Ctrl+C to stop)
-docker compose logs --no-log-prefix nginx > nginx.log   # save raw lines to a file
+python ../scripts/collect_logs.py
 ```
 
-nginx writes one access-log line per request, for example:
+This saves each service's logs to `data/raw/live/<service>_normal.log` and prints the number of lines per service. Collect before `docker compose down`, because removing the containers also removes their logs.
 
-```
-172.20.0.1 - - [25/Oct/2026:21:36:09 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/8.5.0" "-"
-```
-
-To generate some traffic:
+## 4. Stop
 
 ```bash
-for i in $(seq 1 20); do curl -s -o /dev/null http://localhost:8080/; done
+docker compose stop      # stop the containers, keep them and their logs
+docker compose down      # remove the containers (and their logs), keep the database
+docker compose down -v   # also delete the database data
 ```
+
+To look at logs directly: `docker compose logs app`, `docker compose logs -f ssh` (follow live), `docker compose logs --tail 10 nginx`.
