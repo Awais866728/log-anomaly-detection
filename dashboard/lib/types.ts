@@ -2,8 +2,8 @@ export const SERVICE_NAMES = ["nginx", "app", "postgres", "ssh"] as const
 
 export type ServiceName = (typeof SERVICE_NAMES)[number]
 
-// Alerts can also come from offline datasets such as HDFS
-export type AlertSource = ServiceName | "hdfs"
+// Alerts can also come from replayed offline datasets such as HDFS
+export type AlertSource = ServiceName | "hdfs (replay)"
 
 export type Severity = "critical" | "warning"
 
@@ -14,6 +14,7 @@ export interface Kpis {
 }
 
 export interface EventContribution {
+  label: string
   template: string
   count: number
   normalCount: number

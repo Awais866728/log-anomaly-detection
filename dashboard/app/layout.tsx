@@ -24,9 +24,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TooltipProvider>
             <SidebarProvider>
               <AppSidebar />
-              <SidebarInset>
+              {/* min-w-0 keeps the content within the space next to the sidebar */}
+              <SidebarInset className="min-w-0">
                 <TopBar />
-                <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</main>
+                <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 md:p-6">{children}</div>
               </SidebarInset>
             </SidebarProvider>
           </TooltipProvider>

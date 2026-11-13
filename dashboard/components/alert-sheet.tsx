@@ -26,7 +26,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: () => void }) {
   return (
     <Sheet open={alert !== null} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+      <SheetContent className="w-full overflow-y-auto data-[side=right]:sm:max-w-xl">
         {alert && (
           <>
             <SheetHeader className="pr-10">
@@ -55,10 +55,10 @@ export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: (
 
               <Section title="Why this alert">
                 <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
-                  <BarChart data={alert.events.map((e, i) => ({ ...e, label: `#${i + 1}` }))} layout="vertical" margin={{ left: 0, right: 12 }}>
+                  <BarChart data={alert.events.map((e, i) => ({ ...e, rank: `#${i + 1}` }))} layout="vertical" margin={{ left: 0, right: 12 }}>
                     <CartesianGrid horizontal={false} />
-                    <XAxis type="number" tickLine={false} axisLine={false} />
-                    <YAxis type="category" dataKey="label" tickLine={false} axisLine={false} width={28} />
+                    <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="rank" tickLine={false} axisLine={false} width={28} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <ChartLegend content={<SeriesLegend series={SERIES} shape="box" />} />
                     {SERIES.map((s) => (
@@ -66,23 +66,27 @@ export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: (
                     ))}
                   </BarChart>
                 </ChartContainer>
-                <ol className="space-y-2 text-sm">
+                <ol className="space-y-3 text-sm">
                   {alert.events.map((event, i) => (
                     <li key={event.template} className="flex gap-2">
                       <span className="text-muted-foreground tabular-nums">#{i + 1}</span>
-                      <span>
-                        <code className="font-mono text-xs">{event.template}</code> appeared{" "}
-                        <strong className="tabular-nums">{event.count.toLocaleString("en-US")}</strong>{" "}
-                        {event.count === 1 ? "time" : "times"}{" "}
-                        <span className="text-muted-foreground">(normal: about {event.normalCount.toLocaleString("en-US")})</span>
-                      </span>
+                      <div className="min-w-0 space-y-0.5">
+                        <p>
+                          <span className="font-medium">{event.label}</span> appeared{" "}
+                          <strong className="tabular-nums">{event.count.toLocaleString("en-US")}</strong>{" "}
+                          {event.count === 1 ? "time" : "times"}{" "}
+                          <span className="text-muted-foreground">(normal: about {event.normalCount.toLocaleString("en-US")})</span>
+                        </p>
+                        <code className="block font-mono text-xs break-words text-muted-foreground">{event.template}</code>
+                      </div>
                     </li>
                   ))}
                 </ol>
               </Section>
 
               <Section title="Raw log lines">
-                <pre className="max-h-64 overflow-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap">
+                {/* one log line per row; long lines scroll sideways inside the box */}
+                <pre className="max-h-64 overflow-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-relaxed whitespace-pre">
                   {alert.logLines.join("\n")}
                 </pre>
               </Section>

@@ -18,8 +18,8 @@ export function AlertsExplorer({ alerts }: { alerts: Alert[] }) {
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        <FilterSelect label="Severity" value={severity} options={["critical", "warning"]} onChange={setSeverity} />
-        <FilterSelect label="Service" value={source} options={sources} onChange={setSource} />
+        <FilterSelect label="Severity" allLabel="All severities" value={severity} options={["critical", "warning"]} onChange={setSeverity} />
+        <FilterSelect label="Service" allLabel="All services" value={source} options={sources} onChange={setSource} />
       </div>
       <AlertsTable title={`${visible.length} alerts`} alerts={visible} showStatus onSelect={setSelected} />
       <AlertSheet alert={selected} onClose={() => setSelected(null)} />

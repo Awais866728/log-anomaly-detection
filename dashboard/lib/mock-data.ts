@@ -28,10 +28,10 @@ const alerts: Alert[] = [
     probability: 0.98,
     reason: "SSH brute force: 300 failed password events in 1 minute",
     events: [
-      { template: "Failed password for <*> from <*> port <*> ssh2", count: 300, normalCount: 2 },
-      { template: "Invalid user <*> from <*> port <*>", count: 142, normalCount: 0 },
-      { template: "Connection closed by authenticating user <*> <*> port <*> [preauth]", count: 96, normalCount: 1 },
-      { template: "Disconnected from invalid user <*> <*> port <*> [preauth]", count: 88, normalCount: 0 },
+      { label: "Failed password for user", template: "Failed password for <*> from <*> port <*> ssh2", count: 300, normalCount: 2 },
+      { label: "Login attempt for unknown user", template: "Invalid user <*> from <*> port <*>", count: 142, normalCount: 0 },
+      { label: "Connection closed during login", template: "Connection closed by authenticating user <*> <*> port <*> [preauth]", count: 96, normalCount: 1 },
+      { label: "Unknown user disconnected", template: "Disconnected from invalid user <*> <*> port <*> [preauth]", count: 88, normalCount: 0 },
     ],
     logLines: [
       "Failed password for root from 45.13.22.9 port 51022 ssh2",
@@ -55,9 +55,9 @@ const alerts: Alert[] = [
     probability: 0.81,
     reason: "Traffic spike: 9x the normal request rate",
     events: [
-      { template: '<*> - - [<*>] "GET /api/items HTTP/1.1" 200 <*>', count: 4820, normalCount: 520 },
-      { template: '<*> - - [<*>] "POST /api/items HTTP/1.1" 201 <*>', count: 910, normalCount: 140 },
-      { template: '<*> - - [<*>] "GET / HTTP/1.1" 200 <*>', count: 610, normalCount: 60 },
+      { label: "GET /api/items (200)", template: '<*> - - [<*>] "GET /api/items HTTP/1.1" 200 <*>', count: 4820, normalCount: 520 },
+      { label: "POST /api/items (201)", template: '<*> - - [<*>] "POST /api/items HTTP/1.1" 201 <*>', count: 910, normalCount: 140 },
+      { label: "GET / (200)", template: '<*> - - [<*>] "GET / HTTP/1.1" 200 <*>', count: 610, normalCount: 60 },
     ],
     logLines: [
       '172.20.0.1 - - [12/Nov/2026:14:26:01 +0000] "GET /api/items HTTP/1.1" 200 209',
@@ -79,10 +79,10 @@ const alerts: Alert[] = [
     probability: 0.99,
     reason: "Database down: app cannot connect to postgres",
     events: [
-      { template: "<*> ERROR GET /items database error: connect ECONNREFUSED <*>", count: 412, normalCount: 0 },
-      { template: "<*> INFO <*> GET /items 500 <*>", count: 389, normalCount: 1 },
-      { template: "<*> ERROR POST /items database error: connect ECONNREFUSED <*>", count: 104, normalCount: 0 },
-      { template: "<*> ERROR database not ready (attempt <*>): <*>", count: 9, normalCount: 0 },
+      { label: "Database connection refused (GET /items)", template: "<*> ERROR GET /items database error: connect ECONNREFUSED <*>", count: 412, normalCount: 0 },
+      { label: "GET /items failed (500)", template: "<*> INFO <*> GET /items 500 <*>", count: 389, normalCount: 1 },
+      { label: "Database connection refused (POST /items)", template: "<*> ERROR POST /items database error: connect ECONNREFUSED <*>", count: 104, normalCount: 0 },
+      { label: "Database not ready on retry", template: "<*> ERROR database not ready (attempt <*>): <*>", count: 9, normalCount: 0 },
     ],
     logLines: [
       "2026-11-12T14:17:02.118Z ERROR GET /items database error: connect ECONNREFUSED 172.20.0.3:5432",
@@ -97,17 +97,17 @@ const alerts: Alert[] = [
     id: "a4",
     time: "13:47:55",
     window: "block blk_-3544583377289625738",
-    source: "hdfs",
+    source: "hdfs (replay)",
     model: "DeepLog LSTM",
     severity: "critical",
     status: "resolved",
     probability: 0.97,
     reason: "HDFS block failure: block could not be written or deleted",
     events: [
-      { template: "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.", count: 3, normalCount: 0 },
-      { template: "writeBlock <BLK> received exception java.io.IOException: Could not read from stream", count: 2, normalCount: 0 },
-      { template: "PacketResponder <NUM> for block <BLK> Interrupted.", count: 2, normalCount: 0 },
-      { template: "Receiving block <BLK> src: /<IP> dest: /<IP>", count: 3, normalCount: 3 },
+      { label: "Block missing when deleting", template: "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.", count: 3, normalCount: 0 },
+      { label: "Block write failed", template: "writeBlock <BLK> received exception java.io.IOException: Could not read from stream", count: 2, normalCount: 0 },
+      { label: "Block transfer interrupted", template: "PacketResponder <NUM> for block <BLK> Interrupted.", count: 2, normalCount: 0 },
+      { label: "Receiving block", template: "Receiving block <BLK> src: /<IP> dest: /<IP>", count: 3, normalCount: 3 },
     ],
     logLines: [
       "081109 214043 2561 INFO dfs.DataNode$DataXceiver: Receiving block blk_-3544583377289625738 src: /10.250.11.100:37794 dest: /10.250.11.100:50010",
@@ -127,9 +127,9 @@ const alerts: Alert[] = [
     probability: 0.74,
     reason: "Login from a source IP never seen before",
     events: [
-      { template: "Accepted password for <*> from <*> port <*> ssh2", count: 1, normalCount: 0 },
-      { template: "pam_unix(sshd:session): session opened for user <*>", count: 1, normalCount: 0 },
-      { template: "Received disconnect from <*> port <*>:11: disconnected by user", count: 1, normalCount: 0 },
+      { label: "Successful password login", template: "Accepted password for <*> from <*> port <*> ssh2", count: 1, normalCount: 0 },
+      { label: "SSH session opened", template: "pam_unix(sshd:session): session opened for user <*>", count: 1, normalCount: 0 },
+      { label: "User disconnected", template: "Received disconnect from <*> port <*>:11: disconnected by user", count: 1, normalCount: 0 },
     ],
     logLines: [
       "Accepted password for testuser from 10.0.0.23 port 40122 ssh2",

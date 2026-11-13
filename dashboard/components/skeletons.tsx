@@ -22,7 +22,7 @@ export function FiltersSkeleton({ count }: { count: number }) {
   return (
     <div className="flex flex-wrap gap-2">
       {Array.from({ length: count }, (_, i) => (
-        <Skeleton key={i} className="h-8 w-36" />
+        <Skeleton key={i} className="h-8 w-40" />
       ))}
     </div>
   )

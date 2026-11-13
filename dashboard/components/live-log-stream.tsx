@@ -46,8 +46,8 @@ export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, s
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <FilterSelect label="Service" value={service} options={SERVICE_NAMES} onChange={setService} />
-        <FilterSelect label="Level" value={level} options={LEVELS} onChange={setLevel} />
+        <FilterSelect label="Service" allLabel="All services" value={service} options={SERVICE_NAMES} onChange={setService} />
+        <FilterSelect label="Level" allLabel="All levels" value={level} options={LEVELS} onChange={setLevel} />
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search messages" aria-label="Search messages" className="h-8 w-56 pl-8" />
