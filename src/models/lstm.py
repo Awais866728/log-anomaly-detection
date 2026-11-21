@@ -2,11 +2,14 @@
 
 import copy
 import time
+from collections import Counter
 
 import numpy as np
 import pandas as pd
 import torch
 from torch import nn
+
+from src.evaluation.metrics import evaluate
 
 PAD = 0
 
@@ -112,3 +115,63 @@ def detect(model, sequences, vocab, train_events, k, h=10, batch_size=4096):
     """Flag a sequence if any event is outside the model's top-k predictions or was never seen in training."""
     ranks, seq_idx = next_event_ranks(model, sequences, vocab, h, batch_size)
     return flag(sequences, ranks, seq_idx, train_events, k)
+
+
+def evenly_spaced(items, n):
+    """n items spread evenly over the list (all of them if there are no more than n)."""
+    if len(items) <= n:
+        return list(items)
+    return [items[i] for i in np.linspace(0, len(items) - 1, n).round().astype(int)]
+
+
+def known_events(sequences, m=1, by="occurrences"):
+    """Events seen at least m times (or in at least m sequences) in training; rarer ones count as unseen."""
+    counts = Counter(e for s in sequences for e in (set(s) if by == "blocks" else s))
+    return {e for e, n in counts.items() if n >= m}
+
+
+def fit_lstm(sequences, vocab, h=10, seed=42, val_frac=0.1, model_config=None, **train_kwargs):
+    """Hold out val_frac of the sequences for early stopping and train a fresh DeepLogLSTM (as in notebooks 08 and 12).
+
+    Returns (model, history, training seconds).
+    """
+    val_mask = np.random.default_rng(seed).random(len(sequences)) < val_frac
+    X_tr, y_tr, _ = make_windows([s for s, v in zip(sequences, val_mask) if not v], vocab, h)
+    X_val, y_val, _ = make_windows([s for s, v in zip(sequences, val_mask) if v], vocab, h)
+    torch.manual_seed(seed)
+    model = DeepLogLSTM(num_events=len(vocab), **(model_config or {}))
+    history, seconds = train(model, X_tr, y_tr, X_val, y_val, seed=seed, **train_kwargs)
+    return model, history, seconds
+
+
+def sweep_k(model, sequences, vocab, known, ks, y=None, h=10):
+    """Flag the sequences for every k with one model pass.
+
+    Returns (table with k, flag_rate and, if labels y are given, precision/recall/f1/false_alarm_rate;
+    {k: predictions}; ranks; seq_idx).
+    """
+    ranks, seq_idx = next_event_ranks(model, sequences, vocab, h)
+    rows, preds = [], {}
+    for k in ks:
+        preds[k] = flag(sequences, ranks, seq_idx, known, k)
+        row = {"k": k, "flag_rate": float(preds[k].mean())}
+        if y is not None:
+            m = evaluate(y, preds[k])
+            row |= {"precision": m["precision"], "recall": m["recall"], "f1": m["f1"],
+                    "false_alarm_rate": m["false_alarm_rate"]}
+        rows.append(row)
+    return pd.DataFrame(rows), preds, ranks, seq_idx
+
+
+def miss_scores(sequences, ranks, seq_idx, known, k):
+    """Window score for ranking flags: share of events that are unseen or outside the top-k predictions,
+    plus a tiny tie-break so that, at equal share, windows with more such events come first."""
+    # windows of one sequence are consecutive and predict positions 1..len-1 (make_windows)
+    starts = np.searchsorted(seq_idx, np.arange(len(sequences)))
+    scores = np.zeros(len(sequences))
+    for i, seq in enumerate(sequences):
+        missed = np.array([e not in known for e in seq])
+        if len(seq) > 1:
+            missed[1:] |= ranks[starts[i] : starts[i] + len(seq) - 1] >= k
+        scores[i] = missed.mean() + missed.sum() * 1e-6
+    return scores

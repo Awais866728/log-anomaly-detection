@@ -1,0 +1,21 @@
+dataset,model,setting,chosen on,precision,recall,f1,false_alarm_rate,flag_rate
+HDFS,PCA,percentile 95,HDFS,0.8598,0.8174,0.8381,0.0029,0.0205
+HDFS,Isolation Forest,percentile 99,HDFS,0.7873,0.5111,0.6199,0.003,0.014
+HDFS,Random Forest,method balanced,HDFS,1.0,0.997,0.9985,0.0,0.0215
+HDFS,LSTM,k 5,HDFS,0.8017,0.43,0.5598,0.0023,0.0116
+BGL,PCA,percentile 99,BGL,0.0947,0.9799,0.1727,0.7548,0.7716
+BGL,Isolation Forest,percentile 99.5,BGL,0.096,0.9908,0.175,0.7522,0.77
+BGL,Random Forest,method balanced,BGL,0.9551,0.0721,0.1341,0.0003,0.0056
+BGL,LSTM,k 12,BGL,0.0974,0.9925,0.1774,0.741,0.7597
+OpenSSH,PCA,percentile 95,HDFS,,,,,0.0381
+OpenSSH,PCA,percentile 99,BGL,,,,,0.0141
+OpenSSH,Isolation Forest,percentile 99,HDFS,,,,,0.0302
+OpenSSH,Isolation Forest,percentile 99.5,BGL,,,,,0.0213
+OpenSSH,LSTM,k 5,HDFS,,,,,0.2044
+OpenSSH,LSTM,k 12,BGL,,,,,0.043
+Apache,PCA,percentile 95,HDFS,,,,,0.0366
+Apache,PCA,percentile 99,BGL,,,,,0.0118
+Apache,Isolation Forest,percentile 99,HDFS,,,,,0.0047
+Apache,Isolation Forest,percentile 99.5,BGL,,,,,0.0024
+Apache,LSTM,k 5,HDFS,,,,,0.1958
+Apache,LSTM,k 12,BGL,,,,,0.0059

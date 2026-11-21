@@ -134,10 +134,11 @@ def choose_percentile(model_name, train_scores, val_scores, y_val, test_scores, 
     return val_rows, {**test_row, "val_f1": best["f1"]}
 
 
-def validated_results(counts, detectors, percentiles, order_col="order"):
-    """Fit each detector on the normal rows of the first 60%, pick the percentile on the next 10%, test on the last 30%.
+def validated_sweeps(counts, detectors, percentiles, order_col="order"):
+    """Fit each detector on the normal rows of the first 60%; evaluate every percentile on the next 10% and the last 30%.
 
-    detectors: {name: detector}. Returns (validation table, test table with one row per detector).
+    detectors: {name: detector}. Returns (validation table, test table), one row per detector and percentile.
+    The test table also has flag_rate (share of test rows above the threshold).
     """
     event_cols = counts.filter(regex=r"^E\d+$").columns
     fit, val, test = time_split_val(counts, order_col=order_col)
@@ -148,11 +149,28 @@ def validated_results(counts, detectors, percentiles, order_col="order"):
     val_rows, test_rows = [], []
     for name, detector in detectors.items():
         detector.fit(X_fit)
-        rows, test_row = choose_percentile(name, detector.score(X_fit), detector.score(X_val), y_val,
-                                           detector.score(X_test), y_test, percentiles)
-        val_rows += rows
-        test_rows.append(test_row)
+        fit_scores, test_scores = detector.score(X_fit), detector.score(X_test)
+        val_rows += threshold_sweep(name, fit_scores, detector.score(X_val), y_val, percentiles)
+        for row in threshold_sweep(name, fit_scores, test_scores, y_test, percentiles):
+            row["flag_rate"] = float((test_scores > np.percentile(fit_scores, row["percentile"])).mean())
+            test_rows.append(row)
     return pd.DataFrame(val_rows), pd.DataFrame(test_rows)
+
+
+def pick_best(val_table, test_table, setting="percentile", group="model"):
+    """Per group, the setting with the best validation F1 (first on ties) and its test row (with val_f1)."""
+    best = val_table.loc[val_table.groupby(group, sort=False)["f1"].idxmax(), [group, setting, "f1"]]
+    return best.rename(columns={"f1": "val_f1"}).merge(test_table, on=[group, setting])
+
+
+def validated_results(counts, detectors, percentiles, order_col="order"):
+    """Fit each detector on the normal rows of the first 60%, pick the percentile on the next 10%, test on the last 30%.
+
+    detectors: {name: detector}. Returns (validation table, test table with one row per detector).
+    """
+    val_table, test_table = validated_sweeps(counts, detectors, percentiles, order_col)
+    chosen = pick_best(val_table, test_table)
+    return val_table, chosen[[c for c in chosen.columns if c != "flag_rate"]]
 
 
 def score_unlabelled(counts, detector, train_frac=0.7, order_col="window"):
