@@ -1,0 +1,31 @@
+EventId,template
+E1,LDAP: Built with OpenLDAP LDAP SDK
+E2,LDAP: SSL support unavailable
+E3,suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+E4,Digest: generating secret for digest authentication ...
+E5,Digest: done
+E6,env.createBean2(): Factory error creating <*> ( <*> <*>
+E7,config.update(): Can't create <*>
+E8,mod_python: Creating <NUM> session mutexes based on <NUM> max processes and <NUM> max threads.
+E9,mod_security/<NUM>.9dev2 configured
+E10,Apache/<NUM>.<NUM>.<NUM> (Fedora) configured -- resuming normal operations
+E11,jk2_init() Found child <NUM> in scoreboard slot <NUM>
+E12,workerEnv.init() ok /etc/httpd/conf/workers2.properties
+E13,mod_jk child init <NUM> <NUM>
+E14,[client <IP>] Directory index forbidden by rule: /var/www/html/
+E15,[client <IP>] File does not exist: <*>
+E16,jk2_init() Can't find child <NUM> in scoreboard
+E17,[client <IP>] Invalid <*> in request <*> <*>
+E18,[client <IP>] script not found or unable to stat: <*>
+E19,mod_jk2 Shutting down
+E20,"Graceful restart requested, doing restart"
+E21,[client <IP>] request failed: URI too long (longer than <NUM>)
+E22,mod_jk child workerEnv in error state <NUM>
+E23,[client <IP>] request failed: error reading the headers
+E24,script not found or unable to stat
+E25,[client <IP>] attempt to invoke directory as script: /var/www/cgi-bin/
+E26,[client <IP>] Attempt to serve directory: /var/www/html/
+E27,"child process <NUM> still did not exit, sending a SIGTERM"
+E28,"[client <IP>] mod_security: Access denied with code <NUM>. Error reading POST data, error_code=<NUM> [hostname ""<IP>""] [uri ""/xmlrpc.php""]"
+E29,uriMap.mapUri() uri must start with /
+E30,[client <IP>] client sent HTTP/<NUM>.<NUM> request without hostname (see RFC2616 section <NUM>.<NUM>): /

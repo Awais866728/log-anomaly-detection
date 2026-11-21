@@ -1,0 +1,52 @@
+EventId,template
+E1,reverse mapping checking getaddrinfo for <USER> [<IP>] failed - POSSIBLE BREAK-IN ATTEMPT!
+E2,Invalid user <*> from <IP>
+E3,input_userauth_request: invalid user <*> [preauth]
+E4,pam_unix(sshd:auth): check pass; user unknown
+E5,pam_unix(sshd:auth): authentication failure; logname= uid=<NUM> euid=<NUM> tty=ssh ruser= <*>
+E6,Failed <*> for invalid user <*> from <IP> port <PORT> ssh2
+E7,Connection closed by <IP> [preauth]
+E8,Received disconnect from <IP>: <NUM>: <*> <*> [preauth]
+E9,pam_unix(sshd:auth): authentication failure; logname= uid=<NUM> euid=<NUM> tty=ssh ruser= <*> user=<USER>
+E10,Failed password for <USER> from <IP> port <PORT> ssh2
+E11,message repeated <NUM> times: [ Failed password for <USER> from <IP> port <PORT> ssh2]
+E12,Disconnecting: Too many authentication failures for <*> <*>
+E13,PAM <NUM> more authentication <*> logname= uid=<NUM> euid=<NUM> tty=ssh ruser= <*> user=<USER>
+E14,PAM service(sshd) ignoring max retries; <NUM> > <NUM>
+E15,Did not receive identification string from <IP>
+E16,error: Received disconnect from <IP>: <NUM>: com.jcraft.jsch.JSchException: Auth <*> [preauth]
+E17,Received disconnect from <IP>: <NUM>: Closed due to user request. [preauth]
+E18,PAM <NUM> more authentication <*> logname= uid=<NUM> euid=<NUM> tty=ssh ruser= <*>
+E19,error: Received disconnect from <IP>: <NUM>: No more user authentication methods available. [preauth]
+E20,Accepted password for <USER> from <IP> port <PORT> ssh2
+E21,pam_unix(sshd:session): session opened for user <USER> by (uid=<NUM>)
+E22,Received disconnect from <IP>: <NUM>: disconnected by user
+E23,pam_unix(sshd:session): session closed for user <USER>
+E24,fatal: Write failed: Connection reset by peer [preauth]
+E25,fatal: Read from socket failed: Connection reset by peer [preauth]
+E26,error: Received disconnect from <IP>: <NUM>: User request [preauth]
+E27,Bad packet length <NUM>. [preauth]
+E28,Disconnecting: Packet corrupt [preauth]
+E29,Address <IP> maps to <*> but this does not map back to the address - POSSIBLE BREAK-IN ATTEMPT!
+E30,Received disconnect from <IP>: <NUM>: [preauth]
+E31,fatal: no hostkey alg [preauth]
+E32,Bad protocol version identification <*> from <IP> port <PORT>
+E33,Bad protocol version identification <*> <*> HTTP/<NUM>.<NUM>' from <IP> port <PORT>
+E34,Invalid user from <IP>
+E35,input_userauth_request: invalid user [preauth]
+E36,Failed <*> for invalid user from <IP> port <PORT> ssh2
+E37,error: Received disconnect from <IP>: <NUM>: java.net.SocketTimeoutException: Read timed out [preauth]
+E38,Received disconnect from <IP>: <NUM>:
+E39,Received disconnect from <IP>: <NUM>: Client disconnecting normally [preauth]
+E40,error: Received disconnect from <IP>: <NUM>: com.jcraft.jsch.JSchException: timeout in waiting for <USER> process. [preauth]
+E41,error: connect_to <IP> port <PORT>: failed.
+E42,Corrupted MAC on input. [preauth]
+E43,error: Received disconnect from <IP>: <NUM>: org.vngx.jsch.userauth.AuthCancelException: User authentication canceled by user [preauth]
+E44,Received disconnect from <IP>: <NUM>: disconnect [preauth]
+E45,Server listening on <*> port <PORT>.
+E46,error: Received disconnect from <IP>: <NUM>: Authentication cancelled by user. [preauth]
+E47,Received disconnect from <IP>: <NUM>: disconnected by user [preauth]
+E48,error: Received disconnect from <IP>: <NUM>: com.jcraft.jsch.JSchException: reject HostKey: <IP> [preauth]
+E49,Received disconnect from <IP>: <NUM>: Disconnect requested by Windows SSH Client.
+E50,"Received disconnect from <IP>: <NUM>: Normal Shutdown, Thank you for <USER> [preauth]"
+E51,syslogin_perform_logout: logout() returned an error
