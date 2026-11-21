@@ -3,6 +3,7 @@
 import time
 
 import numpy as np
+import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 
@@ -14,6 +15,16 @@ def time_split(df, train_frac=0.7, order_col="order"):
     df = df.sort_values(order_col).reset_index(drop=True)
     n_train = int(len(df) * train_frac)
     return df.iloc[:n_train], df.iloc[n_train:]
+
+
+def time_split_val(df, fit_frac=0.6, val_frac=0.1, order_col="order"):
+    """Time-ordered (fit, validation, test) split: first 60%, next 10%, last 30%.
+
+    The test part is the same as time_split(df, fit_frac + val_frac).
+    """
+    train, test = time_split(df, fit_frac + val_frac, order_col)
+    n_fit = int(len(df) * fit_frac)
+    return train.iloc[:n_fit], train.iloc[n_fit:], test
 
 
 class TfidfZeroMean:
@@ -47,17 +58,30 @@ class PCADetector:
 
 
 class IForestDetector:
-    """Isolation Forest on raw counts; score = -score_samples, so higher means more anomalous."""
+    """Isolation Forest on raw counts; score = -score_samples, so higher means more anomalous.
 
-    def __init__(self, n_estimators=100, random_state=42):
-        self.model = IsolationForest(n_estimators=n_estimators, random_state=random_state, n_jobs=-1)
+    max_samples: rows per tree ("auto" = 256, 1.0 = all training rows).
+    flag_unseen: add 1 to the score of rows with an event that is always 0 in training. Trees can't split
+    on such constant columns, and -score_samples is at most 1, so these rows score above every normal row.
+    """
+
+    def __init__(self, n_estimators=100, random_state=42, max_samples="auto", flag_unseen=False):
+        self.model = IsolationForest(n_estimators=n_estimators, max_samples=max_samples,
+                                     random_state=random_state, n_jobs=-1)
+        self.flag_unseen = flag_unseen
 
     def fit(self, X):
+        X = np.asarray(X)
         self.model.fit(X)
+        self.unseen = X.sum(axis=0) == 0
         return self
 
     def score(self, X):
-        return -self.model.score_samples(X)
+        X = np.asarray(X)
+        scores = -self.model.score_samples(X)
+        if self.flag_unseen:
+            scores = scores + (X[:, self.unseen].sum(axis=1) > 0)
+        return scores
 
 
 def fit_and_score(detector, X_train, X_test):
@@ -87,3 +111,68 @@ def threshold_sweep(model_name, train_scores, test_scores, y_test, percentiles):
             "false_alarm_rate": metrics["false_alarm_rate"],
         })
     return rows
+
+
+def choose_percentile(model_name, train_scores, val_scores, y_val, test_scores, y_test, percentiles):
+    """Pick the percentile with the best validation F1 (first one on ties), then evaluate the test set with it.
+
+    Returns (validation rows for all percentiles, one test row for the chosen percentile).
+    """
+    val_rows = threshold_sweep(model_name, train_scores, val_scores, y_val, percentiles)
+    best = max(val_rows, key=lambda r: r["f1"])
+    test_row = threshold_sweep(model_name, train_scores, test_scores, y_test, [best["percentile"]])[0]
+    return val_rows, {**test_row, "val_f1": best["f1"]}
+
+
+def validated_results(counts, detectors, percentiles, order_col="order"):
+    """Fit each detector on the normal rows of the first 60%, pick the percentile on the next 10%, test on the last 30%.
+
+    detectors: {name: detector}. Returns (validation table, test table with one row per detector).
+    """
+    event_cols = counts.filter(regex=r"^E\d+$").columns
+    fit, val, test = time_split_val(counts, order_col=order_col)
+    X_fit = fit.loc[fit["Label"] == 0, event_cols].to_numpy()
+    X_val, y_val = val[event_cols].to_numpy(), val["Label"].to_numpy()
+    X_test, y_test = test[event_cols].to_numpy(), test["Label"].to_numpy()
+
+    val_rows, test_rows = [], []
+    for name, detector in detectors.items():
+        detector.fit(X_fit)
+        rows, test_row = choose_percentile(name, detector.score(X_fit), detector.score(X_val), y_val,
+                                           detector.score(X_test), y_test, percentiles)
+        val_rows += rows
+        test_rows.append(test_row)
+    return pd.DataFrame(val_rows), pd.DataFrame(test_rows)
+
+
+def score_unlabelled(counts, detector, train_frac=0.7, order_col="window"):
+    """Fit on the first train_frac of windows (assumed normal) and score the rest.
+
+    Returns (test windows, test scores, training scores).
+    """
+    event_cols = counts.filter(regex=r"^E\d+$").columns
+    train, test = time_split(counts, train_frac, order_col)
+    train_scores, test_scores, _, _ = fit_and_score(detector, train[event_cols].to_numpy(), test[event_cols].to_numpy())
+    return test, test_scores, train_scores
+
+
+def top_flagged(windows, scores, templates, n=5, n_events=3, known_events=None):
+    """The n highest-scoring windows with their most frequent events (template text).
+
+    windows: rows of a *_sequences table (with "window" and "EventSequence"), in the same order as scores.
+    known_events: if given, also list the window's events that are not in this set.
+    """
+    rows = []
+    for pos in np.argsort(-scores, kind="stable")[:n]:
+        seq = pd.Series(windows["EventSequence"].iloc[pos])
+        top = seq.value_counts().head(n_events)
+        row = {
+            "window": windows["window"].iloc[pos],
+            "score": scores[pos],
+            "lines": len(seq),
+            "top events": "; ".join(f"{e} x{c}: {templates[e]}" for e, c in top.items()),
+        }
+        if known_events is not None:
+            row["unseen events"] = "; ".join(f"{e}: {templates[e]}" for e in dict.fromkeys(seq) if e not in known_events)
+        rows.append(row)
+    return pd.DataFrame(rows)

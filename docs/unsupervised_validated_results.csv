@@ -1,0 +1,7 @@
+dataset,model,percentile,precision,recall,f1,false_alarm_rate,val_f1
+HDFS,PCA,95.0,0.8598,0.8174,0.8381,0.0029,0.8543
+HDFS,Isolation Forest (old),90.0,0.0428,0.0322,0.0368,0.0159,0.0534
+HDFS,Isolation Forest (fixed),99.0,0.7873,0.5111,0.6199,0.003,0.7193
+BGL,PCA,99.0,0.0947,0.9799,0.1727,0.7548,0.2582
+BGL,Isolation Forest (old),90.0,0.0416,0.0459,0.0437,0.0853,0.0332
+BGL,Isolation Forest (fixed),99.5,0.096,0.9908,0.175,0.7522,0.2764
