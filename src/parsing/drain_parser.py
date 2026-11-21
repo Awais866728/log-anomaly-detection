@@ -53,9 +53,19 @@ DATASET_MASKING = {
     ],
 }
 
+
+# Live Docker services: keep the HTTP status class, which the generic number mask would hide (200 = 500)
+def _http_status_masks(before="", after=""):
+    return [MaskingInstruction(rf"{before}\b{c}\d\d\b{after}", f"STATUS{c}XX") for c in "12345"]
+
+
+DATASET_MASKING["nginx"] = _http_status_masks(before=r'(?<=HTTP/\d\.\d" )')  # "GET /api/items HTTP/1.1" 200 69
+DATASET_MASKING["app"] = _http_status_masks(after=r"(?= \d+ms$)")  # <IP> GET /items 200 6ms
+
 DEFAULT_SIM_TH = 0.4
-# OpenSSH templates often differ by one word, which Drain merges at 0.4.
-DATASET_SIM_TH = {"OpenSSH": 0.7}
+# OpenSSH templates often differ by one word, which Drain merges at 0.4; so do the web requests
+# (GET vs POST, 2xx vs 5xx) of the live services.
+DATASET_SIM_TH = {"OpenSSH": 0.7, "nginx": 0.9, "app": 0.7}  # nginx lines are long: one token is ~1/9
 
 
 def extract_content(line, dataset):

@@ -48,7 +48,7 @@ export function AlertsTable({ title, alerts, showStatus = false, onSelect }: Ale
                 <TableCell className="font-mono text-xs">{alert.source}</TableCell>
                 <TableCell>{alert.model}</TableCell>
                 <TableCell>
-                  <StatusBadge tone={alert.severity} label={alert.severity} />
+                  <StatusBadge tone={alert.severity} label={alert.level ?? alert.severity} />
                 </TableCell>
                 {showStatus && (
                   <TableCell>

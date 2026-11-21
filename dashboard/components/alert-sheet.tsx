@@ -23,6 +23,30 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function formatTime(iso?: string | null) {
+  return iso ? new Date(iso).toISOString().replace("T", " ").replace("Z", " UTC") : "-"
+}
+
+// Label / value pairs for the summary grid; detection-service fields only when present
+function summaryItems(alert: Alert): [string, string][] {
+  const items: [string, string][] = [
+    ["Service", alert.source],
+    ["Time window", alert.window],
+    ["Model", alert.setting ? `${alert.model} (${alert.setting})` : alert.model],
+    [alert.model === "Random Forest" ? "Anomaly probability" : "Anomaly score (share of normal windows below)", `${Math.round(alert.probability * 100)}%`],
+  ]
+  if (alert.alertTime) {
+    items.push(
+      ["Last log line", formatTime(alert.lastLineTime)],
+      ["Alert produced", formatTime(alert.alertTime)],
+      ["Latency (stream to alert)", `${alert.latencyMs?.toLocaleString("en-US")} ms`],
+      ["Flagged by", alert.flaggedBy?.length ? alert.flaggedBy.join(", ") : "unseen-event rule only"]
+    )
+  }
+  if (alert.trueLabel != null) items.push(["True label (replay)", alert.trueLabel ? "anomaly" : "normal"])
+  return items
+}
+
 export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: () => void }) {
   return (
     <Sheet open={alert !== null} onOpenChange={(open) => !open && onClose()}>
@@ -32,19 +56,14 @@ export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: (
             <SheetHeader className="pr-10">
               <SheetTitle>{alert.reason}</SheetTitle>
               <SheetDescription className="flex gap-2 pt-1">
-                <StatusBadge tone={alert.severity} label={alert.severity} />
+                <StatusBadge tone={alert.severity} label={alert.level ?? alert.severity} />
                 <StatusBadge tone={alert.status === "open" ? "neutral" : "healthy"} label={alert.status} />
               </SheetDescription>
             </SheetHeader>
             <div className="space-y-6 px-4 pb-6">
               <Section title="Summary">
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                  {[
-                    ["Service", alert.source],
-                    ["Time window", alert.window],
-                    ["Model", alert.model],
-                    ["Anomaly probability", `${Math.round(alert.probability * 100)}%`],
-                  ].map(([label, value]) => (
+                  {summaryItems(alert).map(([label, value]) => (
                     <div key={label}>
                       <dt className="text-xs text-muted-foreground">{label}</dt>
                       <dd className="font-medium">{value}</dd>
@@ -68,14 +87,24 @@ export function AlertSheet({ alert, onClose }: { alert: Alert | null; onClose: (
                 </ChartContainer>
                 <ol className="space-y-3 text-sm">
                   {alert.events.map((event, i) => (
-                    <li key={event.template} className="flex gap-2">
+                    <li key={event.label} className="flex gap-2">
                       <span className="text-muted-foreground tabular-nums">#{i + 1}</span>
                       <div className="min-w-0 space-y-0.5">
                         <p>
-                          <span className="font-medium">{event.label}</span> appeared{" "}
-                          <strong className="tabular-nums">{event.count.toLocaleString("en-US")}</strong>{" "}
-                          {event.count === 1 ? "time" : "times"}{" "}
-                          <span className="text-muted-foreground">(normal: about {event.normalCount.toLocaleString("en-US")})</span>
+                          <span className="font-medium">{event.label}</span>
+                          {event.unseen && <span className="text-warning"> (new template)</span>}{" "}
+                          {event.missing ? (
+                            <strong>expected but missing</strong>
+                          ) : (
+                            <>
+                              appeared <strong className="tabular-nums">{event.count.toLocaleString("en-US")}</strong>{" "}
+                              {event.count === 1 ? "time" : "times"}
+                            </>
+                          )}{" "}
+                          <span className="text-muted-foreground">
+                            (normal: about {event.normalCount.toLocaleString("en-US", { maximumFractionDigits: 1 })}
+                            {event.shap != null && `, SHAP ${event.shap >= 0 ? "+" : ""}${event.shap.toFixed(3)}`})
+                          </span>
                         </p>
                         <code className="block font-mono text-xs break-words text-muted-foreground">{event.template}</code>
                       </div>

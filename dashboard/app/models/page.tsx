@@ -1,6 +1,5 @@
-import { ModelsView } from "@/components/models-view"
-import { getModelResults } from "@/lib/mock-data"
+import { LiveModels } from "@/components/live-models"
 
-export default async function ModelsPage() {
-  return <ModelsView models={await getModelResults()} />
+export default function ModelsPage() {
+  return <LiveModels />
 }

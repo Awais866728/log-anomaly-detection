@@ -16,3 +16,4 @@ data/processed/*.parquet
 
 # Trained models
 models/*.pt
+models/*.joblib

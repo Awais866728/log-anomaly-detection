@@ -1,6 +1,5 @@
-import { AlertsExplorer } from "@/components/alerts-explorer"
-import { getAlerts } from "@/lib/mock-data"
+import { LiveAlerts } from "@/components/live-alerts"
 
-export default async function AlertsPage() {
-  return <AlertsExplorer alerts={await getAlerts()} />
+export default function AlertsPage() {
+  return <LiveAlerts />
 }

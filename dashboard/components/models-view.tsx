@@ -34,7 +34,7 @@ export function ModelsView({ models }: { models: ModelResult[] }) {
         <Card className="min-w-0 xl:col-span-3">
           <CardHeader>
             <CardTitle>Results on {dataset}</CardTitle>
-            <CardDescription>Test set, last 30% of the data in time order</CardDescription>
+            <CardDescription>Test set (last 30% in time order), settings chosen on a validation part (docs/cross_system_results.csv)</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -54,6 +54,7 @@ export function ModelsView({ models }: { models: ModelResult[] }) {
                       <p className="text-xs text-muted-foreground">
                         {model.kind}: {model.description}
                       </p>
+                      {model.settings?.[dataset] && <p className="text-xs text-muted-foreground">Setting: {model.settings[dataset]}</p>}
                     </TableCell>
                     {METRICS.map((metric) => (
                       <TableCell

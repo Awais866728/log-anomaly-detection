@@ -1,39 +1,30 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Pause, Play, Search } from "lucide-react"
 
+import { ConnectionNotice } from "@/components/connection-notice"
 import { ALL, FilterSelect } from "@/components/filter-select"
 import { StatusBadge, type Tone } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { nextLogLines } from "@/lib/mock-data"
-import { SERVICE_NAMES, type LogLevel, type LogLine } from "@/lib/types"
+import { useDetectorFeed } from "@/lib/detector"
+import { REPLAY_SOURCES, SERVICE_NAMES, type LogLevel } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const LEVELS: LogLevel[] = ["INFO", "WARN", "ERROR"]
 const LEVEL_TONE: Record<LogLevel, Tone> = { INFO: "neutral", WARN: "warning", ERROR: "critical" }
+const SOURCES = [...SERVICE_NAMES, ...REPLAY_SOURCES]
 
-// alertReasons maps an alert id to its reason, for lines that belong to an alert
-export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, string> }) {
-  const [lines, setLines] = useState<LogLine[]>([])
+export function LiveLogStream() {
   const [paused, setPaused] = useState(false)
   const [service, setService] = useState(ALL)
   const [level, setLevel] = useState(ALL)
   const [search, setSearch] = useState("")
-
-  useEffect(() => {
-    if (paused) return
-    const tick = () => setLines((prev) => nextLogLines(prev, new Date()))
-    const first = setTimeout(tick, 0)
-    const timer = setInterval(tick, 1000)
-    return () => {
-      clearTimeout(first)
-      clearInterval(timer)
-    }
-  }, [paused])
+  const { connection, lines, alerts, lineAlerts } = useDetectorFeed({ paused })
+  const alertReasons = Object.fromEntries(alerts.map((a) => [a.id, a.reason]))
 
   const query = search.trim().toLowerCase()
   const visible = lines.filter(
@@ -46,7 +37,7 @@ export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, s
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <FilterSelect label="Service" allLabel="All services" value={service} options={SERVICE_NAMES} onChange={setService} />
+        <FilterSelect label="Service" allLabel="All services" value={service} options={SOURCES} onChange={setService} />
         <FilterSelect label="Level" allLabel="All levels" value={level} options={LEVELS} onChange={setLevel} />
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -57,11 +48,12 @@ export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, s
           {paused ? "Resume" : "Pause"}
         </Button>
       </div>
+      <ConnectionNotice connection={connection} />
       <Card>
         <CardHeader>
           <CardTitle>Live logs</CardTitle>
           <CardDescription>
-            {visible.length} of {lines.length} lines · {paused ? "paused" : "new lines every second"}, last 200 kept
+            {visible.length} of {lines.length} lines · {paused ? "paused" : "streamed from the detection service"}, last 200 kept
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,7 +70,7 @@ export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, s
               <TableBody>
                 {visible.map((line) => (
                   // lines that belong to an alert get a light red background
-                  <TableRow key={line.id} className={cn(line.alertId && "bg-critical/5 hover:bg-critical/10")}>
+                  <TableRow key={line.id} className={cn(lineAlerts[line.id] && "bg-critical/5 hover:bg-critical/10")}>
                     <TableCell className="font-mono text-xs tabular-nums">{line.time}</TableCell>
                     <TableCell className="font-mono text-xs">{line.service}</TableCell>
                     <TableCell>
@@ -86,9 +78,9 @@ export function LiveLogStream({ alertReasons }: { alertReasons: Record<string, s
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {line.message}
-                      {line.alertId && (
-                        <span className="ml-2 font-sans font-medium text-critical" title={alertReasons[line.alertId]}>
-                          alert {line.alertId}
+                      {lineAlerts[line.id] && (
+                        <span className="ml-2 font-sans font-medium text-critical" title={alertReasons[lineAlerts[line.id]]}>
+                          alert {lineAlerts[line.id]}
                         </span>
                       )}
                     </TableCell>

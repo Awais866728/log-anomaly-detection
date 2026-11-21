@@ -15,6 +15,11 @@ joblib
 tqdm
 pytest
 
+# streaming pipeline (src/streaming)
+fastapi
+uvicorn
+redis
+
 # traffic for the docker test environment
 locust
 paramiko

@@ -25,6 +25,15 @@ services:
 
   postgres:
     image: postgres:16-alpine
+    # log every connection and disconnection, and the statement behind each error
+    command:
+      - postgres
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - log_min_error_statement=error
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-loguser}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-logpass}
@@ -54,6 +63,19 @@ services:
     ports:
       # localhost only, so the test server can't be reached from the network
       - "127.0.0.1:2222:2222"
+    restart: unless-stopped
+
+  # log stream between the collectors and the detection service (src/streaming)
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      # localhost only
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
 volumes:

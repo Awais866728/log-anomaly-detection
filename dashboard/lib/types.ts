@@ -2,8 +2,13 @@ export const SERVICE_NAMES = ["nginx", "app", "postgres", "ssh"] as const
 
 export type ServiceName = (typeof SERVICE_NAMES)[number]
 
-// Alerts can also come from replayed offline datasets such as HDFS
-export type AlertSource = ServiceName | "hdfs (replay)"
+// Alerts can also come from replayed offline datasets (HDFS, BGL)
+export const REPLAY_SOURCES = ["hdfs (replay)", "bgl (replay)"] as const
+
+export type AlertSource = ServiceName | (typeof REPLAY_SOURCES)[number]
+
+// "Alert": a model flags the window; "New template": the only reason is an event never seen in normal training
+export type AlertLevel = "Alert" | "New template"
 
 export type Severity = "critical" | "warning"
 
@@ -18,6 +23,12 @@ export interface EventContribution {
   template: string
   count: number
   normalCount: number
+  // SHAP contribution to the anomaly class (Random Forest only); null for other models and unseen templates
+  shap?: number | null
+  // count 0 although normal windows have this event: "expected but missing"
+  missing?: boolean
+  // event never seen in normal training (a new template)
+  unseen?: boolean
 }
 
 export interface Alert {
@@ -32,6 +43,14 @@ export interface Alert {
   reason: string
   events: EventContribution[]
   logLines: string[]
+  level?: AlertLevel
+  flaggedBy?: string[]
+  setting?: string | null
+  lastLineTime?: string | null // time of the last log line in the window (the log's own clock)
+  alertTime?: string // when the detector produced the alert
+  latencyMs?: number // from the last line reaching the stream to the alert
+  lineIds?: number[]
+  trueLabel?: number | null // replay only: 1 if the window is labelled anomalous
 }
 
 export interface ServiceStatus {
@@ -57,6 +76,7 @@ export interface Scores {
   precision: number
   recall: number
   f1: number
+  false_alarm_rate?: number
 }
 
 export interface ModelResult {
@@ -64,6 +84,7 @@ export interface ModelResult {
   kind: string
   description: string
   scores: Record<Dataset, Scores>
+  settings?: Partial<Record<Dataset, string>>
 }
 
 export type LogLevel = "INFO" | "WARN" | "ERROR"
@@ -71,7 +92,7 @@ export type LogLevel = "INFO" | "WARN" | "ERROR"
 export interface LogLine {
   id: number
   time: string
-  service: ServiceName
+  service: ServiceName | (typeof REPLAY_SOURCES)[number]
   level: LogLevel
   message: string
   alertId?: string
