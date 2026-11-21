@@ -1,0 +1,494 @@
+[
+  {
+    "window_id": 166868,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 18,
+        "shap": 0.6953
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1619
+      },
+      {
+        "event": "E11",
+        "template": "<NUM> double-hummer alignment exceptions",
+        "count": 0,
+        "shap": 0.0294
+      }
+    ]
+  },
+  {
+    "window_id": 167017,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.9,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 2,
+        "shap": 0.5863
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1116
+      },
+      {
+        "event": "E137",
+        "template": "external input interrupt (unit=<HEX> bit=<HEX>): <*> <*> <*> <*> <*> <*> <*>",
+        "count": 2,
+        "shap": 0.1034
+      }
+    ]
+  },
+  {
+    "window_id": 168499,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.73,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.5983
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.0987
+      },
+      {
+        "event": "E11",
+        "template": "<NUM> double-hummer alignment exceptions",
+        "count": 0,
+        "shap": 0.0192
+      }
+    ]
+  },
+  {
+    "window_id": 172930,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.1285,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E240",
+        "template": "idoproxydb hit ASSERT condition: ASSERT <*> Source <*> Source line=<NUM> Function=int <*> <*>",
+        "count": 16,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": 176802,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.91,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.5559
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1309
+      },
+      {
+        "event": "E53",
+        "template": "lr:<HEX> <*> xer:<NUM> <*>",
+        "count": 1,
+        "shap": 0.0559
+      }
+    ]
+  },
+  {
+    "window_id": 178962,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.99,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "machine check status register: <HEX>",
+        "count": 1,
+        "shap": 0.1966
+      },
+      {
+        "event": "E19",
+        "template": "instruction address: <HEX>",
+        "count": 1,
+        "shap": 0.1604
+      },
+      {
+        "event": "E22",
+        "template": "summary...........................<NUM>",
+        "count": 1,
+        "shap": 0.1461
+      }
+    ]
+  },
+  {
+    "window_id": 181973,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.96,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "machine check status register: <HEX>",
+        "count": 1,
+        "shap": 0.2042
+      },
+      {
+        "event": "E19",
+        "template": "instruction address: <HEX>",
+        "count": 1,
+        "shap": 0.1677
+      },
+      {
+        "event": "E22",
+        "template": "summary...........................<NUM>",
+        "count": 1,
+        "shap": 0.1491
+      }
+    ]
+  },
+  {
+    "window_id": 182015,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.91,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.5723
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1159
+      },
+      {
+        "event": "E53",
+        "template": "lr:<HEX> <*> xer:<NUM> <*>",
+        "count": 1,
+        "shap": 0.0728
+      }
+    ]
+  },
+  {
+    "window_id": 182103,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.92,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.5342
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1136
+      },
+      {
+        "event": "E52",
+        "template": "special purpose registers:",
+        "count": 1,
+        "shap": 0.0847
+      }
+    ]
+  },
+  {
+    "window_id": 203028,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.0385,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E269",
+        "template": "iar <*> dear <*>",
+        "count": 20,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": 203422,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.0385,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E269",
+        "template": "iar <*> dear <*>",
+        "count": 20,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": 211505,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.89,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "machine check status register: <HEX>",
+        "count": 1,
+        "shap": 0.2119
+      },
+      {
+        "event": "E19",
+        "template": "instruction address: <HEX>",
+        "count": 1,
+        "shap": 0.154
+      },
+      {
+        "event": "E22",
+        "template": "summary...........................<NUM>",
+        "count": 1,
+        "shap": 0.1381
+      }
+    ]
+  },
+  {
+    "window_id": 211751,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.99,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "machine check status register: <HEX>",
+        "count": 1,
+        "shap": 0.1871
+      },
+      {
+        "event": "E19",
+        "template": "instruction address: <HEX>",
+        "count": 1,
+        "shap": 0.1646
+      },
+      {
+        "event": "E22",
+        "template": "summary...........................<NUM>",
+        "count": 1,
+        "shap": 0.1381
+      }
+    ]
+  },
+  {
+    "window_id": 214708,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.93,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.6567
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1459
+      },
+      {
+        "event": "E11",
+        "template": "<NUM> double-hummer alignment exceptions",
+        "count": 0,
+        "shap": 0.0269
+      }
+    ]
+  },
+  {
+    "window_id": 215105,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.86,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E18",
+        "template": "data TLB error interrupt",
+        "count": 1,
+        "shap": 0.3698
+      },
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.2989
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1209
+      }
+    ]
+  },
+  {
+    "window_id": 217196,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.0385,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E380",
+        "template": "<NUM> microseconds spent in the rbs signal handler during <NUM> calls. <NUM> microseconds was the maximum time for a single instance of a correctable ddr.",
+        "count": 10,
+        "shap": null
+      },
+      {
+        "event": "E381",
+        "template": "<NUM> total interrupts. <NUM> critical input interrupts. <NUM> microseconds total spent on critical input interrupts, <NUM> microseconds max time in a critical input interrupt.",
+        "count": 10,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": 223325,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.0385,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E381",
+        "template": "<NUM> total interrupts. <NUM> critical input interrupts. <NUM> microseconds total spent on critical input interrupts, <NUM> microseconds max time in a critical input interrupt.",
+        "count": 11,
+        "shap": null
+      },
+      {
+        "event": "E380",
+        "template": "<NUM> microseconds spent in the rbs signal handler during <NUM> calls. <NUM> microseconds was the maximum time for a single instance of a correctable ddr.",
+        "count": 9,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": 230789,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.2067
+      },
+      {
+        "event": "E81",
+        "template": "uncorrectable error detected in <*> <*>",
+        "count": 3,
+        "shap": 0.0952
+      },
+      {
+        "event": "E88",
+        "template": "number of lines with parity errors written to L3 EDRAMs...<NUM>",
+        "count": 1,
+        "shap": 0.0813
+      }
+    ]
+  },
+  {
+    "window_id": 234709,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.62,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E19",
+        "template": "instruction address: <HEX>",
+        "count": 1,
+        "shap": 0.161
+      },
+      {
+        "event": "E20",
+        "template": "machine check <*>",
+        "count": 2,
+        "shap": 0.1434
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.0685
+      }
+    ]
+  },
+  {
+    "window_id": 235186,
+    "dataset": "BGL",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.93,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E54",
+        "template": "rts panic! - stopping execution",
+        "count": 1,
+        "shap": 0.6567
+      },
+      {
+        "event": "E3",
+        "template": "generating core.<NUM>",
+        "count": 0,
+        "shap": 0.1459
+      },
+      {
+        "event": "E11",
+        "template": "<NUM> double-hummer alignment exceptions",
+        "count": 0,
+        "shap": 0.0269
+      }
+    ]
+  }
+]

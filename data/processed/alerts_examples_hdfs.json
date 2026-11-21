@@ -1,0 +1,518 @@
+[
+  {
+    "window_id": "blk_-2551530448419944298",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2089
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 2,
+        "shap": 0.1071
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0889
+      }
+    ]
+  },
+  {
+    "window_id": "blk_6231924762579773302",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_6107329378654048781",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_7957764067434188387",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_8562388230695399477",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_9007611800238243140",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "BLOCK* NameSystem.addStoredBlock: Redundant addStoredBlock request received for <BLK> on <IP> size <NUM>",
+        "count": 1,
+        "shap": 0.7109
+      },
+      {
+        "event": "E35",
+        "template": "<IP>:Got exception while serving <BLK> to /<IP>:",
+        "count": 0,
+        "shap": 0.0028
+      },
+      {
+        "event": "E13",
+        "template": "Verification succeeded for <BLK>",
+        "count": 0,
+        "shap": 0.001
+      }
+    ]
+  },
+  {
+    "window_id": "blk_1694882228833358041",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.2672
+      },
+      {
+        "event": "E11",
+        "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+        "count": 1,
+        "shap": 0.0675
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 5,
+        "shap": 0.0501
+      }
+    ]
+  },
+  {
+    "window_id": "blk_6647747942787068087",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.37,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E44",
+        "template": "Adding an already existing block <BLK>",
+        "count": 2,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": "blk_9176263204797010146",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 0.37,
+    "reason": "unseen event",
+    "top_events": [
+      {
+        "event": "E44",
+        "template": "Adding an already existing block <BLK>",
+        "count": 2,
+        "shap": null
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-6877166161030957197",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 4,
+        "shap": 0.1516
+      },
+      {
+        "event": "E11",
+        "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+        "count": 1,
+        "shap": 0.1446
+      },
+      {
+        "event": "E12",
+        "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+        "count": 1,
+        "shap": 0.088
+      }
+    ]
+  },
+  {
+    "window_id": "blk_8631610650808315063",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-5995981677206308844",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E18",
+        "template": "Receiving empty packet for block <BLK>",
+        "count": 3,
+        "shap": 0.6839
+      },
+      {
+        "event": "E13",
+        "template": "Verification succeeded for <BLK>",
+        "count": 0,
+        "shap": 0.0159
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 0,
+        "shap": 0.0123
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-4755313376367913684",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2199
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 1,
+        "shap": 0.1108
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0966
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-7671021690880802080",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2089
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 2,
+        "shap": 0.1071
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0889
+      }
+    ]
+  },
+  {
+    "window_id": "blk_6482157749245012946",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E33",
+        "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+        "count": 1,
+        "shap": 0.6292
+      },
+      {
+        "event": "E17",
+        "template": "Deleting block <BLK> file <*>",
+        "count": 3,
+        "shap": 0.0064
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 3,
+        "shap": 0.0064
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-8837840152920319334",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2199
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 1,
+        "shap": 0.1108
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0966
+      }
+    ]
+  },
+  {
+    "window_id": "blk_2714626853584030316",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2089
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 2,
+        "shap": 0.1071
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0889
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-3683521862733886887",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E18",
+        "template": "Receiving empty packet for block <BLK>",
+        "count": 3,
+        "shap": 0.6839
+      },
+      {
+        "event": "E13",
+        "template": "Verification succeeded for <BLK>",
+        "count": 0,
+        "shap": 0.0159
+      },
+      {
+        "event": "E32",
+        "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+        "count": 0,
+        "shap": 0.0123
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-1978109075303363978",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E4",
+        "template": "Received block <BLK> of size <NUM> from /<IP>",
+        "count": 0,
+        "shap": 0.2089
+      },
+      {
+        "event": "E1",
+        "template": "Receiving block <BLK> src: /<IP> dest: /<IP>",
+        "count": 2,
+        "shap": 0.1071
+      },
+      {
+        "event": "E5",
+        "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+        "count": 0,
+        "shap": 0.0889
+      }
+    ]
+  },
+  {
+    "window_id": "blk_-901713697534534962",
+    "dataset": "HDFS",
+    "model": "Random Forest (balanced)",
+    "anomaly_probability": 1.0,
+    "reason": "model",
+    "top_events": [
+      {
+        "event": "E21",
+        "template": "BLOCK* NameSystem.addStoredBlock: Redundant addStoredBlock request received for <BLK> on <IP> size <NUM>",
+        "count": 1,
+        "shap": 0.7109
+      },
+      {
+        "event": "E35",
+        "template": "<IP>:Got exception while serving <BLK> to /<IP>:",
+        "count": 0,
+        "shap": 0.0028
+      },
+      {
+        "event": "E13",
+        "template": "Verification succeeded for <BLK>",
+        "count": 0,
+        "shap": 0.001
+      }
+    ]
+  }
+]

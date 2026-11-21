@@ -57,6 +57,16 @@ class PCADetector:
         return ((Z - self.pca.inverse_transform(self.pca.transform(Z))) ** 2).sum(axis=1)
 
 
+def unseen_columns(X_train):
+    """Boolean mask of event columns that are always 0 in the training rows."""
+    return np.asarray(X_train).sum(axis=0) == 0
+
+
+def has_unseen(X, unseen):
+    """True for rows with at least one event from an unseen_columns mask."""
+    return np.asarray(X)[:, unseen].sum(axis=1) > 0
+
+
 class IForestDetector:
     """Isolation Forest on raw counts; score = -score_samples, so higher means more anomalous.
 
@@ -73,14 +83,14 @@ class IForestDetector:
     def fit(self, X):
         X = np.asarray(X)
         self.model.fit(X)
-        self.unseen = X.sum(axis=0) == 0
+        self.unseen = unseen_columns(X)
         return self
 
     def score(self, X):
         X = np.asarray(X)
         scores = -self.model.score_samples(X)
         if self.flag_unseen:
-            scores = scores + (X[:, self.unseen].sum(axis=1) > 0)
+            scores = scores + has_unseen(X, self.unseen)
         return scores
 
 

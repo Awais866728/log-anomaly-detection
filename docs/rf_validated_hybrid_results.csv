@@ -1,0 +1,5 @@
+dataset,model,precision,recall,f1,false_alarm_rate,"recall, windows with unseen event"
+HDFS,Random Forest,1.0,0.997,0.9985,0.0,0.6667
+HDFS,hybrid,1.0,0.9976,0.9988,0.0,1.0
+BGL,Random Forest,0.9551,0.0721,0.1341,0.0003,0.0411
+BGL,hybrid,0.0862,0.84,0.1564,0.7174,1.0
