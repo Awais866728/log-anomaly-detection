@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.features.bgl_features import EMPTY_MESSAGE
+from src.features.time_windows import APACHE_HEADERLESS, Timestamps
 from src.parsing.drain_parser import extract_content
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,7 +15,8 @@ REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
 STREAM = os.environ.get("LOG_STREAM", "logs")
 STREAM_MAXLEN = 200_000  # Redis keeps about this many entries
 
-REPLAY_SOURCES = ["hdfs", "bgl"]
+REPLAY_SOURCES = ["hdfs", "bgl", "openssh", "apache"]  # openssh / apache: Loghub datasets without labels
+TIMED_DATASETS = {"openssh": "OpenSSH", "apache": "Apache"}  # replay source -> dataset name in time_windows
 LIVE_SERVICES = ["nginx", "app", "postgres", "ssh"]
 
 HDFS_BLOCK_RE = re.compile(r"blk_-?\d+")
@@ -92,6 +94,45 @@ def parse_bgl(line):
     level = parts[8] if len(parts) > 8 else "INFO"
     level = {"FATAL": "ERROR", "FAILURE": "ERROR", "SEVERE": "ERROR", "ERROR": "ERROR", "WARNING": "WARN"}.get(level, "INFO")
     return ts, content, bool(fields) and fields[0] != "-", level
+
+
+APACHE_LEVEL_RE = re.compile(r"^\[[^\]]*\]\s+\[(\w+)\]")
+
+
+class TimedLogParser:
+    """OpenSSH / Apache line -> (unix seconds, content or None, level), exactly as time_windows.parse_timed_log.
+
+    Lines without a timestamp or message give content None and are not part of any window. Apache's headerless
+    APACHE_HEADERLESS lines get the previous kept line's timestamp. OpenSSH lines have no year: Timestamps adds
+    one when the month goes back. state() / restore() carry this across the start of a replay.
+    """
+
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.to_seconds = Timestamps(dataset)
+        self.last_ts = None
+
+    def __call__(self, line):
+        content, ts = extract_content(line, self.dataset), self.to_seconds(line)
+        if self.dataset == "Apache" and line.strip() == APACHE_HEADERLESS and self.last_ts is not None:
+            content, ts = APACHE_HEADERLESS, self.last_ts
+        if self.dataset == "Apache":
+            match = APACHE_LEVEL_RE.match(line)
+            level = LEVELS.get(match.group(1), "INFO") if match else "INFO"
+        else:
+            level = "WARN" if SSH_WARN_RE.search(line) else "INFO"
+        if content is None or ts is None:
+            return ts, None, level
+        self.last_ts = ts
+        return ts, content, level
+
+    def state(self):
+        return {"year": self.to_seconds.year, "last_month": self.to_seconds.last_month, "last_ts": self.last_ts}
+
+    def restore(self, state):
+        self.to_seconds.year = int(state.get("year", self.to_seconds.year))
+        self.to_seconds.last_month = state.get("last_month")
+        self.last_ts = state.get("last_ts")
 
 
 def assign_cluster(miner, content):

@@ -11,12 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useDetectorFeed } from "@/lib/detector"
-import { REPLAY_SOURCES, SERVICE_NAMES, type LogLevel } from "@/lib/types"
+import { ALL_SOURCES, type LogLevel } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const LEVELS: LogLevel[] = ["INFO", "WARN", "ERROR"]
 const LEVEL_TONE: Record<LogLevel, Tone> = { INFO: "neutral", WARN: "warning", ERROR: "critical" }
-const SOURCES = [...SERVICE_NAMES, ...REPLAY_SOURCES]
+const SOURCES = [...ALL_SOURCES]
+const MAX_SHOWN = 200
 
 export function LiveLogStream() {
   const [paused, setPaused] = useState(false)
@@ -27,12 +28,13 @@ export function LiveLogStream() {
   const alertReasons = Object.fromEntries(alerts.map((a) => [a.id, a.reason]))
 
   const query = search.trim().toLowerCase()
-  const visible = lines.filter(
+  const matching = lines.filter(
     (l) =>
       (service === ALL || l.service === service) &&
       (level === ALL || l.level === level) &&
       (!query || l.message.toLowerCase().includes(query))
   )
+  const visible = matching.slice(0, MAX_SHOWN)
 
   return (
     <>
@@ -53,7 +55,8 @@ export function LiveLogStream() {
         <CardHeader>
           <CardTitle>Live logs</CardTitle>
           <CardDescription>
-            {visible.length} of {lines.length} lines · {paused ? "paused" : "streamed from the detection service"}, last 200 kept
+            {matching.length > MAX_SHOWN ? `newest ${MAX_SHOWN} of ${matching.length}` : matching.length} matching lines ·{" "}
+            {paused ? "paused" : "streamed from the detection service"}, last 200 kept per service
           </CardDescription>
         </CardHeader>
         <CardContent>

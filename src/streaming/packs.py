@@ -6,10 +6,14 @@ counts of normal training windows, and (replay) the Random Forest used for SHAP 
 - Replay packs (HDFS, BGL): built from the offline training data with the validation-chosen settings
   (fit on the first 60%, chosen on the next 10%, as in notebooks 14-16). The Drain state is rebuilt by parsing
   the full log exactly as in training, so template ids match the model columns.
+- Unlabelled replay packs (OpenSSH, Apache): no labels, so PCA, Isolation Forest and LSTM fitted on the first 70%
+  of windows (all assumed normal, as in notebooks 14 and 16), with the settings chosen on BGL
+  (docs/cross_system_results.csv); no Random Forest.
 - Live packs (one per Docker service): Drain, PCA, Isolation Forest and LSTM trained on normal logs collected
   with scripts/collect_logs.py, in 1-minute windows. No labels, so no Random Forest; fixed thresholds.
 
 Build:  python -m src.streaming.packs replay        (HDFS and BGL, about 10 minutes)
+        python -m src.streaming.packs replay --datasets OpenSSH Apache
         python -m src.streaming.packs live --label normal
 """
 
@@ -23,10 +27,11 @@ import torch
 
 from src.features.bgl_features import BGL_DIR, parse_bgl
 from src.features.hdfs_features import HDFS_DIR, parse_hdfs_blocks
+from src.features.time_windows import FILE_PREFIX, LOG_PATHS, WINDOWING, parse_timed_log
 from src.models.lstm import DeepLogLSTM, build_vocab, evenly_spaced, fit_lstm, known_events, next_event_ranks, sweep_k
 from src.models.supervised import explain_alert, select_rf_method
-from src.models.unsupervised import (IForestDetector, PCADetector, pick_best, time_split_val, unseen_columns,
-                                     validated_sweeps)
+from src.models.unsupervised import (IForestDetector, PCADetector, pick_best, time_split, time_split_val,
+                                     unseen_columns, validated_sweeps)
 from src.parsing.drain_parser import DrainParser
 from src.streaming.common import LIVE_SERVICES, MODELS, ROOT, parse_live, split_docker_line
 from src.streaming.windows import TimeWindows
@@ -124,6 +129,57 @@ def build_replay_pack(dataset):
     joblib.dump(pack, pack_path(prefix))
     print(f"{dataset}: saved {pack_path(prefix).relative_to(ROOT)}  settings {pack['settings']}  "
           f"({time.perf_counter() - start:.0f} s)", flush=True)
+
+
+UNLABELLED_SETTINGS_FROM = "BGL"  # their percentile / k: the ones chosen on this labelled dataset
+SEED = 42
+
+
+def build_unlabelled_pack(dataset):
+    """OpenSSH or Apache pack: no labels, models fitted on the first 70% of windows (as in notebooks 14 and 16)."""
+    start = time.perf_counter()
+    prefix = FILE_PREFIX[dataset]
+    print(f"{dataset}: rebuilding the Drain state from the full log ...", flush=True)
+    _, _, parser, *_ = parse_timed_log(LOG_PATHS[dataset], dataset)
+    templates = pd.read_csv(PROCESSED / f"{prefix}_templates.csv").set_index("EventId")["template"]
+    assert parser.num_templates == len(templates), "Drain state differs from training"
+
+    counts = pd.read_parquet(PROCESSED / f"{prefix}_counts.parquet")
+    event_cols = list(counts.filter(regex=r"^E\d+$").columns)
+    train, _ = time_split(counts, 0.7, "window")
+    X_train = train[event_cols].to_numpy()
+    unseen = unseen_columns(X_train)
+    cross = pd.read_csv(ROOT / "docs" / "cross_system_results.csv")
+    setting = cross[(cross["dataset"] == dataset) & (cross["chosen on"] == UNLABELLED_SETTINGS_FROM)].set_index("model")["setting"]
+
+    packed = {}
+    for name, det in {"PCA": PCADetector(variance=0.95), "Isolation Forest": IForestDetector(max_samples=1.0)}.items():
+        det.fit(X_train)
+        scores, p = det.score(X_train), float(setting[name].split()[-1])
+        packed[name] = {"model": det, "percentile": p, "threshold": float(np.percentile(scores, p)),
+                        "train_scores": np.sort(scores), "zero_unseen": True}
+
+    print(f"{dataset}: LSTM on the first 70% of windows ...", flush=True)
+    sequences = pd.read_parquet(PROCESSED / f"{prefix}_sequences.parquet")
+    s_train, _ = time_split(sequences, 0.7, "window")
+    train_seqs = [list(s) for s in s_train["EventSequence"]]
+    vocab = build_vocab(templates.index)
+    config = {"embed_dim": 32, "hidden_size": 64, "num_layers": 2}
+    model, _, _ = fit_lstm(train_seqs, vocab, H, SEED, model_config=config)
+    known, k = known_events(train_seqs, 1), int(setting["LSTM"].split()[-1])
+    packed["LSTM"] = {"state_dict": model.state_dict(), "config": {"h": H, **config}, "vocab": vocab, "known": known,
+                      "k": k, "train_scores": _lstm_train_scores(model, evenly_spaced(train_seqs, 20000), vocab, known, k)}
+
+    kind, size = WINDOWING[dataset]
+    pack = {"name": prefix, "dataset": dataset, "mode": "replay", "parser": parser.miner, "event_cols": event_cols,
+            "templates": templates.to_dict(), "normal_mean": X_train.mean(axis=0), "unseen": unseen,
+            "detectors": packed, "background": None, "labelled": False, "settings_from": UNLABELLED_SETTINGS_FROM,
+            "train_windows": len(train), "window": f"{size} s" if kind == "time" else f"{size} lines",
+            "settings": {name: (f"percentile {d['percentile']:g}" if "percentile" in d else f"k {d['k']}")
+                         for name, d in packed.items()}}
+    joblib.dump(pack, pack_path(prefix))
+    print(f"{dataset}: saved {pack_path(prefix).relative_to(ROOT)}  settings {pack['settings']} (chosen on "
+          f"{UNLABELLED_SETTINGS_FROM})  ({time.perf_counter() - start:.0f} s)", flush=True)
 
 
 def live_windows(service, path):
@@ -327,14 +383,17 @@ def main():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="mode", required=True)
     replay = sub.add_parser("replay")
-    replay.add_argument("--datasets", nargs="+", default=["HDFS", "BGL"])
+    replay.add_argument("--datasets", nargs="+", default=["HDFS", "BGL"], choices=["HDFS", "BGL", "OpenSSH", "Apache"])
     live = sub.add_parser("live")
     live.add_argument("--label", default="normal")
     args = parser.parse_args()
     MODELS.mkdir(exist_ok=True)
     if args.mode == "replay":
         for dataset in args.datasets:
-            build_replay_pack(dataset)
+            if dataset in FILE_PREFIX:
+                build_unlabelled_pack(dataset)
+            else:
+                build_replay_pack(dataset)
     else:
         for service in LIVE_SERVICES:
             build_live_pack(service, args.label)

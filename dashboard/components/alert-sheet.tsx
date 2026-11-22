@@ -44,6 +44,8 @@ function summaryItems(alert: Alert): [string, string][] {
     )
   }
   if (alert.trueLabel != null) items.push(["True label (replay)", alert.trueLabel ? "anomaly" : "normal"])
+  else if (alert.source === "openssh (replay)" || alert.source === "apache (replay)")
+    items.push(["True label (replay)", "none: this dataset has no labels"])
   return items
 }
 

@@ -3,7 +3,8 @@
 - LineWindows: fixed windows of n lines in arrival order (BGL, as in bgl_features.make_windows)
 - BlockWindows: one window per HDFS block (as in hdfs_features); a block is closed when no line for it has
   arrived for `idle` seconds of log time, or when the replay ends
-- TimeWindows: fixed 1-minute windows by line time (live services, as in time_windows.make_time_windows)
+- TimeWindows: fixed 1-minute windows by line time (live services and the OpenSSH replay, as in
+  time_windows.make_time_windows)
 """
 
 from collections import OrderedDict
@@ -97,12 +98,14 @@ class BlockWindows:
 
 class TimeWindows:
     """started: when collection started (unix seconds); a window that began earlier is only partly collected
-    and is dropped instead of scored."""
+    and is dropped instead of scored. wall_clock: close a window once its minute is over on the clock (live);
+    replays (old log times) close a window only when a line from a later minute arrives, or at the end."""
 
-    def __init__(self, source, seconds=60, grace=5, started=None):
+    def __init__(self, source, seconds=60, grace=5, started=None, wall_clock=True):
         self.source, self.seconds, self.grace = source, seconds, grace
         self.current = None
         self.started = started
+        self.wall_clock = wall_clock
 
     def _close(self):
         closed, self.current = self.current, None
@@ -122,7 +125,7 @@ class TimeWindows:
 
     def tick(self, now):
         """Close the open window once its minute is over (plus a few seconds for late lines)."""
-        if self.current is not None and now > self.current.window_id + self.seconds + self.grace:
+        if self.wall_clock and self.current is not None and now > self.current.window_id + self.seconds + self.grace:
             return self._close()
         return []
 

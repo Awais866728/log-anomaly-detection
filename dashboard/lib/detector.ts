@@ -2,13 +2,26 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import type { Alert, AlertLevel, AlertSource, LogLevel, LogLine, ModelResult } from "@/lib/types"
+import type {
+  Alert,
+  AlertLevel,
+  AlertSource,
+  Health,
+  LogLevel,
+  LogLine,
+  ModelResult,
+  PackInfo,
+  PipelineStep,
+  ServiceName,
+  ServiceStatus,
+  VolumePoint,
+} from "@/lib/types"
 
 // Detection service (src/streaming/service.py). Set NEXT_PUBLIC_DETECTOR_URL before `next dev` / `next build`.
 export const DETECTOR_URL = process.env.NEXT_PUBLIC_DETECTOR_URL ?? "http://localhost:8000"
 
-const MAX_LINES = 200
-const MAX_ALERTS = 200
+const MAX_LINES = 200 // per source, so a fast replay doesn't push the live services out
+const MAX_ALERTS = 200 // per source: a BGL replay alone makes many alerts per second
 
 // ---------------------------------------------------------------- service formats (snake_case, as in explain_alert)
 
@@ -66,6 +79,26 @@ export interface DetectorStats {
   avg_detection_latency_ms: number | null
   late_hdfs_lines: number
   packs: Record<string, { mode: string; models: string[]; settings: Record<string, string> }>
+}
+
+interface ServiceSystem {
+  services: {
+    name: ServiceName
+    container: string | null
+    state: string | null
+    status: string | null
+    health: Health | null
+    uptime: string | null
+    logs_per_minute: number | null
+    last_line_received: string | null
+    sparkline: number[]
+    alerts: number
+    new_templates: number
+    models: string[]
+  }[]
+  pipeline: PipelineStep[]
+  volume: ({ minute: number } & Record<ServiceName, number>)[]
+  docker_available: boolean
 }
 
 // ---------------------------------------------------------------- mapping to the dashboard types
@@ -132,12 +165,81 @@ export function getModelResults() {
   return getJson<ModelResult[]>("/api/models")
 }
 
+export function getPacks() {
+  return getJson<PackInfo[]>("/api/packs")
+}
+
+export interface SystemStatus {
+  connection: Connection
+  // null until the first answer arrives
+  services: ServiceStatus[] | null
+  pipeline: PipelineStep[] | null
+  volume: VolumePoint[] | null
+  dockerAvailable: boolean | null
+}
+
+const SYSTEM_POLL_MS = 5000
+
+function minuteLabel(unixSeconds: number) {
+  return new Date(unixSeconds * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+}
+
+// Container state (docker compose ps), log volume and pipeline status from the detection service, every 5 s
+export function useSystemStatus(): SystemStatus {
+  const [state, setState] = useState<SystemStatus>({
+    connection: "connecting",
+    services: null,
+    pipeline: null,
+    volume: null,
+    dockerAvailable: null,
+  })
+
+  useEffect(() => {
+    let closed = false
+    const load = () =>
+      getJson<ServiceSystem>("/api/system")
+        .then((s) => {
+          if (closed) return
+          setState({
+            connection: "live",
+            services: s.services.map((x) => ({
+              name: x.name,
+              container: x.container,
+              state: x.state,
+              status: x.status,
+              health: x.health,
+              uptime: x.uptime,
+              logsPerMinute: x.logs_per_minute,
+              lastLineReceived: x.last_line_received ? clock(x.last_line_received) : null,
+              sparkline: x.sparkline,
+              alerts: x.alerts,
+              newTemplates: x.new_templates,
+              models: x.models,
+            })),
+            pipeline: s.pipeline,
+            volume: s.volume.map(({ minute, ...counts }) => ({ time: minuteLabel(minute), ...counts })),
+            dockerAvailable: s.docker_available,
+          })
+        })
+        .catch(() => !closed && setState((prev) => ({ ...prev, connection: "offline" })))
+    load()
+    const timer = setInterval(load, SYSTEM_POLL_MS)
+    return () => {
+      closed = true
+      clearInterval(timer)
+    }
+  }, [])
+
+  return state
+}
+
 export type Connection = "connecting" | "live" | "offline"
 
 export interface DetectorFeed {
   connection: Connection
+  // newest first; the last MAX_LINES of each source
   lines: LogLine[]
-  alerts: Alert[]
+  alerts: Alert[] // newest first; the last MAX_ALERTS of each source
   stats: DetectorStats | null
   // line id -> alert id, for log lines that belong to an alerted window
   lineAlerts: Record<number, string>
@@ -146,8 +248,8 @@ export interface DetectorFeed {
 // Initial state from the REST endpoints, then live updates over server-sent events (/api/events)
 export function useDetectorFeed({ paused = false } = {}): DetectorFeed {
   const [connection, setConnection] = useState<Connection>("connecting")
-  const [lines, setLines] = useState<LogLine[]>([])
-  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [lines, setLines] = useState<Record<string, LogLine[]>>({})
+  const [alerts, setAlerts] = useState<Record<string, Alert[]>>({})
   const [stats, setStats] = useState<DetectorStats | null>(null)
   // pausing only freezes the log view; alerts and stats keep updating
   const pausedRef = useRef(paused)
@@ -164,8 +266,8 @@ export function useDetectorFeed({ paused = false } = {}): DetectorFeed {
     ])
       .then(([l, a, s]) => {
         if (closed) return
-        setLines(l.map(toLogLine))
-        setAlerts(a.map(toAlert))
+        setLines(addLines({}, l.map(toLogLine)))
+        setAlerts(addAlerts({}, a.map(toAlert)))
         setStats(s)
       })
       .catch(() => !closed && setConnection("offline"))
@@ -175,13 +277,13 @@ export function useDetectorFeed({ paused = false } = {}): DetectorFeed {
     source.onerror = () => setConnection("offline") // EventSource reconnects by itself
     source.addEventListener("alert", (e) => {
       const alert = toAlert(JSON.parse((e as MessageEvent).data))
-      setAlerts((prev) => [alert, ...prev.filter((a) => a.id !== alert.id)].slice(0, MAX_ALERTS))
+      setAlerts((prev) => addAlerts(prev, [alert]))
     })
     source.addEventListener("stats", (e) => setStats(JSON.parse((e as MessageEvent).data)))
     source.addEventListener("logs", (e) => {
       if (pausedRef.current) return
-      const fresh = (JSON.parse((e as MessageEvent).data) as ServiceLogLine[]).map(toLogLine).reverse()
-      setLines((prev) => [...fresh, ...prev].slice(0, MAX_LINES))
+      const fresh = (JSON.parse((e as MessageEvent).data) as ServiceLogLine[]).map(toLogLine)
+      setLines((prev) => addLines(prev, fresh))
     })
     return () => {
       closed = true
@@ -190,6 +292,35 @@ export function useDetectorFeed({ paused = false } = {}): DetectorFeed {
   }, [])
 
   const lineAlerts: Record<number, string> = {}
-  for (const alert of alerts) for (const id of alert.lineIds ?? []) lineAlerts[id] = alert.id
-  return { connection, lines, alerts, stats, lineAlerts }
+  const allAlerts = Object.values(alerts)
+    .flat()
+    .sort((a, b) => (b.alertTime ?? "").localeCompare(a.alertTime ?? ""))
+  for (const alert of allAlerts) for (const id of alert.lineIds ?? []) lineAlerts[id] = alert.id
+  const merged = Object.values(lines)
+    .flat()
+    .sort((a, b) => b.id - a.id)
+  return { connection, lines: merged, alerts: allAlerts, stats, lineAlerts }
+}
+
+// Add alerts to the per-source lists: newest first, MAX_ALERTS per source, no duplicates
+function addAlerts(prev: Record<string, Alert[]>, fresh: Alert[]) {
+  const next = { ...prev }
+  for (const alert of fresh) {
+    const kept = (next[alert.source] ?? []).filter((a) => a.id !== alert.id)
+    next[alert.source] = [alert, ...kept]
+      .sort((a, b) => (b.alertTime ?? "").localeCompare(a.alertTime ?? ""))
+      .slice(0, MAX_ALERTS)
+  }
+  return next
+}
+
+// Add lines (any order) to the per-source buffers: newest first, MAX_LINES per source
+function addLines(prev: Record<string, LogLine[]>, fresh: LogLine[]) {
+  const next = { ...prev }
+  const bySource: Record<string, LogLine[]> = {}
+  for (const line of fresh) (bySource[line.service] ??= []).push(line)
+  for (const [source, items] of Object.entries(bySource)) {
+    next[source] = [...items.sort((a, b) => b.id - a.id), ...(next[source] ?? [])].slice(0, MAX_LINES)
+  }
+  return next
 }
