@@ -1,0 +1,31 @@
+dataset,step,batch_size,unit,ms,n,mean_lines_per_window
+HDFS,Drain parsing,,per line,0.024,20000,16.7
+HDFS,encode,1.0,per window,0.0212,2000,16.7
+HDFS,PCA,1.0,per window,0.285,2000,16.7
+HDFS,Isolation Forest,1.0,per window,7.5145,2000,16.7
+HDFS,Random Forest,1.0,per window,7.9271,2000,16.7
+HDFS,LSTM,1.0,per window,0.8226,2000,16.7
+HDFS,encode,500.0,per window,0.0061,2000,16.7
+HDFS,PCA,500.0,per window,0.0037,2000,16.7
+HDFS,Isolation Forest,500.0,per window,0.0225,2000,16.7
+HDFS,Random Forest,500.0,per window,0.021,2000,16.7
+HDFS,LSTM,500.0,per window,0.66,2000,16.7
+HDFS,explanation (Isolation Forest alert),1.0,per alert,0.5945,20,16.7
+HDFS,explanation (Random Forest alert),1.0,per alert,27.5256,20,16.7
+HDFS,explanation (LSTM alert),1.0,per alert,0.5573,7,16.7
+HDFS,explanation (PCA alert),1.0,per alert,0.5339,2,16.7
+BGL,Drain parsing,,per line,0.0204,20000,20.0
+BGL,encode,1.0,per window,0.0266,2000,20.0
+BGL,PCA,1.0,per window,0.3172,2000,20.0
+BGL,Isolation Forest,1.0,per window,7.6277,2000,20.0
+BGL,Random Forest,1.0,per window,10.0229,2000,20.0
+BGL,LSTM,1.0,per window,0.9124,2000,20.0
+BGL,encode,500.0,per window,0.0082,2000,20.0
+BGL,PCA,500.0,per window,0.031,2000,20.0
+BGL,Isolation Forest,500.0,per window,0.0376,2000,20.0
+BGL,Random Forest,500.0,per window,0.0612,2000,20.0
+BGL,LSTM,500.0,per window,0.8415,2000,20.0
+BGL,explanation (LSTM alert),1.0,per alert,3.7872,20,20.0
+BGL,explanation (PCA alert),1.0,per alert,3.5343,20,20.0
+BGL,explanation (Isolation Forest alert),1.0,per alert,3.4737,20,20.0
+BGL,explanation (Random Forest alert),1.0,per alert,65.8411,6,20.0

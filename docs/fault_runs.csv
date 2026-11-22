@@ -1,0 +1,18 @@
+run,scenario,affected,fault_start,fault_end,details
+0,experiment,,2026-11-22T11:51:04.844Z,,"start; 15 runs, gap 420 s"
+1,db,"postgres,app,nginx",2026-11-22T11:56:04.844Z,2026-11-22T11:57:05.101Z,"postgres stopped, started again after 60 s"
+2,overload,"nginx,app,postgres",2026-11-22T12:04:05.101Z,2026-11-22T12:05:05.405Z,300 extra Locust users for 60 s (normal: 20)
+3,ssh,ssh,2026-11-22T12:12:05.406Z,2026-11-22T12:13:03.532Z,"30 attempts: 14 failed passwords, 16 connections refused"
+4,db,"postgres,app,nginx",2026-11-22T12:20:03.532Z,2026-11-22T12:21:03.884Z,"postgres stopped, started again after 60 s"
+5,overload,"nginx,app,postgres",2026-11-22T12:28:03.886Z,2026-11-22T12:29:04.545Z,300 extra Locust users for 60 s (normal: 20)
+6,ssh,ssh,2026-11-22T12:36:04.546Z,2026-11-22T12:37:02.679Z,"30 attempts: 14 failed passwords, 16 connections refused"
+7,db,"postgres,app,nginx",2026-11-22T12:44:02.680Z,2026-11-22T12:45:02.998Z,"postgres stopped, started again after 60 s"
+8,overload,"nginx,app,postgres",2026-11-22T12:52:02.998Z,2026-11-22T12:53:03.564Z,300 extra Locust users for 60 s (normal: 20)
+9,ssh,ssh,2026-11-22T13:00:03.564Z,2026-11-22T13:01:01.695Z,"30 attempts: 14 failed passwords, 16 connections refused"
+10,db,"postgres,app,nginx",2026-11-22T13:08:01.695Z,2026-11-22T13:09:01.999Z,"postgres stopped, started again after 60 s"
+11,overload,"nginx,app,postgres",2026-11-22T13:16:02.000Z,2026-11-22T13:17:02.551Z,300 extra Locust users for 60 s (normal: 20)
+12,ssh,ssh,2026-11-22T13:24:02.552Z,2026-11-22T13:25:00.699Z,"30 attempts: 14 failed passwords, 16 connections refused"
+13,db,"postgres,app,nginx",2026-11-22T13:32:00.699Z,2026-11-22T13:33:00.992Z,"postgres stopped, started again after 60 s"
+14,overload,"nginx,app,postgres",2026-11-22T13:40:00.992Z,2026-11-22T13:41:01.538Z,300 extra Locust users for 60 s (normal: 20)
+15,ssh,ssh,2026-11-22T13:48:01.538Z,2026-11-22T13:48:59.671Z,"30 attempts: 14 failed passwords, 16 connections refused"
+16,experiment,,2026-11-22T13:55:59.672Z,,end

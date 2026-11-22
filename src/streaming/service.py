@@ -7,15 +7,15 @@ use the packs trained on collected normal logs (python -m src.streaming.packs re
 pack is still shown on the live log page but not scored.
 
 Endpoints: GET /api/logs, /api/alerts, /api/stats, /api/models, /health and GET /api/events (server-sent events:
-"logs", "alert" and "stats").
+"logs", "alert" and "stats"). Set ALERT_LOG=<path> to also keep every alert in a JSON-lines file.
 """
 
 import asyncio
-import warnings
 import json
 import os
 import threading
 import time
+import warnings
 from collections import Counter, deque
 from contextlib import asynccontextmanager
 
@@ -34,6 +34,7 @@ MAX_LOGS, MAX_ALERTS = 500, 500
 START_ID = os.environ.get("STREAM_START", "$")  # "$" = only new entries, "0" = everything in the stream
 HDFS_IDLE = float(os.environ.get("HDFS_IDLE_SECONDS", 4 * 3600))
 DEDUPE_NEW_TEMPLATES = os.environ.get("DEDUPE_NEW_TEMPLATES", "1") == "1"
+ALERT_LOG = os.environ.get("ALERT_LOG")  # if set: append every alert to this file as one JSON line
 # SHAP and predict_proba get numpy rows; the models were fitted on DataFrames
 warnings.filterwarnings("ignore", message="X does not have valid feature names")
 SOURCE_LABEL = {"hdfs": "hdfs (replay)", "bgl": "bgl (replay)"}
@@ -179,7 +180,11 @@ class Detector:
             "true_label": self._true_label(window),
             "status": "open",
         })
-        alert = json.loads(json.dumps(alert, default=_jsonable))
+        line = json.dumps(alert, default=_jsonable)
+        alert = json.loads(line)
+        if ALERT_LOG:
+            with open(ALERT_LOG, "a", encoding="utf-8") as f:
+                f.write(line + "\n")
         with self.lock:
             self.alerts.appendleft(alert)
         self.broadcast("alert", alert)

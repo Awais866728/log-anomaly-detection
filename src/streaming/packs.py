@@ -227,31 +227,44 @@ class Pack:
         """{model: {"flagged", "score", "probability"}} plus the count vector and unseen events, for one window."""
         return self.score_batch([events])[0]
 
-    def score_batch(self, windows):
-        """score() for several windows at once: one model call per detector instead of one per window."""
+    def score_batch(self, windows, timings=None):
+        """score() for several windows at once: one model call per detector instead of one per window.
+
+        timings: optional dict; the seconds spent per step ("encode" and each model) are added to it.
+        """
+        clock = time.perf_counter()
         encoded = [self.encode(events) for events in windows]
         X = np.array([x for x, _ in encoded]).reshape(len(windows), len(self.event_cols))
         X_zeroed = np.where(self.zero_mask, 0, X)  # unseen events count only towards "New template"
         verdicts = [{} for _ in windows]
+        if timings is not None:
+            timings["encode"] = timings.get("encode", 0.0) + time.perf_counter() - clock
         for name, d in self.detectors.items():
-            if name == "LSTM":
-                for i, events in enumerate(windows):
-                    seq = [e for e in events if e in d["vocab"]]
-                    s = 0.0
-                    if len(seq) >= 2:
-                        ranks, seq_idx = next_event_ranks(self.lstm, [seq], d["vocab"], H)
-                        s = float(_miss_share([seq], ranks, seq_idx, d["known"], d["k"])[0])
-                    verdicts[i][name] = {"flagged": s > 0, "score": s, "probability": self._percentile(d, s)}
-            elif name == "Random Forest":
-                proba = d["model"].predict_proba(pd.DataFrame(X, columns=self.event_cols))[:, 1]
-                for i, p in enumerate(proba):
-                    verdicts[i][name] = {"flagged": bool(p >= 0.5), "score": float(p), "probability": float(p)}
-            else:
-                scores = d["model"].score(X_zeroed if d["zero_unseen"] else X)
-                for i, s in enumerate(scores):
-                    verdicts[i][name] = {"flagged": bool(s > d["threshold"]), "score": float(s),
-                                         "probability": self._percentile(d, float(s))}
+            clock = time.perf_counter()
+            self._score_model(name, d, windows, X, X_zeroed, verdicts)
+            if timings is not None:
+                timings[name] = timings.get(name, 0.0) + time.perf_counter() - clock
         return [(v, x, unseen) for v, (x, unseen) in zip(verdicts, encoded)]
+
+    def _score_model(self, name, d, windows, X, X_zeroed, verdicts):
+        """One detector's verdicts for a batch, written into verdicts[i][name]."""
+        if name == "LSTM":
+            for i, events in enumerate(windows):
+                seq = [e for e in events if e in d["vocab"]]
+                s = 0.0
+                if len(seq) >= 2:
+                    ranks, seq_idx = next_event_ranks(self.lstm, [seq], d["vocab"], H)
+                    s = float(_miss_share([seq], ranks, seq_idx, d["known"], d["k"])[0])
+                verdicts[i][name] = {"flagged": s > 0, "score": s, "probability": self._percentile(d, s)}
+        elif name == "Random Forest":
+            proba = d["model"].predict_proba(pd.DataFrame(X, columns=self.event_cols))[:, 1]
+            for i, p in enumerate(proba):
+                verdicts[i][name] = {"flagged": bool(p >= 0.5), "score": float(p), "probability": float(p)}
+        else:
+            scores = d["model"].score(X_zeroed if d["zero_unseen"] else X)
+            for i, s in enumerate(scores):
+                verdicts[i][name] = {"flagged": bool(s > d["threshold"]), "score": float(s),
+                                     "probability": self._percentile(d, float(s))}
 
     @staticmethod
     def _percentile(d, s):

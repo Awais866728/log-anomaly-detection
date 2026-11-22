@@ -1,0 +1,16 @@
+run,scenario,fault_start,fault_end,detected,latency_s,first_alert_service,models_fired,alerts,new_template_warnings,detected_any,latency_any_s,levels
+1,db,2026-11-22 11:56:04.844+00:00,2026-11-22 11:57:05.101+00:00,True,55.4,app,"Isolation Forest, PCA",4,2,True,55.4,"Alert, New template"
+2,overload,2026-11-22 12:04:05.101+00:00,2026-11-22 12:05:05.405+00:00,True,55.0,app,PCA,5,0,True,55.0,Alert
+3,ssh,2026-11-22 12:12:05.406+00:00,2026-11-22 12:13:03.532+00:00,True,56.1,ssh,"Isolation Forest, PCA",2,0,True,56.1,Alert
+4,db,2026-11-22 12:20:03.532+00:00,2026-11-22 12:21:03.884+00:00,True,57.6,nginx,"Isolation Forest, PCA",4,2,True,57.6,"Alert, New template"
+5,overload,2026-11-22 12:28:03.886+00:00,2026-11-22 12:29:04.545+00:00,True,56.3,nginx,PCA,5,0,True,56.3,Alert
+6,ssh,2026-11-22 12:36:04.546+00:00,2026-11-22 12:37:02.679+00:00,True,56.1,ssh,Isolation Forest,2,0,True,56.1,Alert
+7,db,2026-11-22 12:44:02.680+00:00,2026-11-22 12:45:02.998+00:00,True,60.4,postgres,"Isolation Forest, PCA",4,2,True,60.4,"Alert, New template"
+8,overload,2026-11-22 12:52:02.998+00:00,2026-11-22 12:53:03.564+00:00,True,57.1,nginx,PCA,5,0,True,57.1,Alert
+9,ssh,2026-11-22 13:00:03.564+00:00,2026-11-22 13:01:01.695+00:00,True,58.1,ssh,Isolation Forest,2,0,True,58.1,Alert
+10,db,2026-11-22 13:08:01.695+00:00,2026-11-22 13:09:01.999+00:00,True,60.4,postgres,"Isolation Forest, PCA",4,2,True,60.4,"Alert, New template"
+11,overload,2026-11-22 13:16:02.000+00:00,2026-11-22 13:17:02.551+00:00,True,58.1,app,PCA,5,0,True,58.1,Alert
+12,ssh,2026-11-22 13:24:02.552+00:00,2026-11-22 13:25:00.699+00:00,True,58.1,ssh,Isolation Forest,2,0,True,58.1,Alert
+13,db,2026-11-22 13:32:00.699+00:00,2026-11-22 13:33:00.992+00:00,True,60.4,postgres,"Isolation Forest, PCA",4,2,True,60.4,"Alert, New template"
+14,overload,2026-11-22 13:40:00.992+00:00,2026-11-22 13:41:01.538+00:00,True,59.1,app,PCA,4,0,True,59.1,Alert
+15,ssh,2026-11-22 13:48:01.538+00:00,2026-11-22 13:48:59.671+00:00,True,64.2,ssh,Isolation Forest,1,0,True,64.2,Alert
