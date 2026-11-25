@@ -1,0 +1,7 @@
+dataset,seed,chosen_setting,precision,recall,f1,false_alarm_rate
+HDFS,42,balanced,1.0,0.997,0.9985,0.0
+HDFS,7,none,1.0,0.9979,0.9989,0.0
+HDFS,123,none,1.0,0.9979,0.9989,0.0
+BGL,42,balanced,0.9551,0.0721,0.1341,0.0003
+BGL,7,balanced,0.9585,0.074,0.1374,0.0003
+BGL,123,balanced,0.9552,0.0723,0.1344,0.0003
