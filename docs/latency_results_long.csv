@@ -1,0 +1,16 @@
+run,scenario,fault_start,fault_end,detected,latency_s,first_alert_service,models_fired,alerts,new_template_warnings,detected_any,latency_any_s,levels
+1,db,2026-11-26 08:57:19.675+00:00,2026-11-26 08:58:19.998+00:00,True,40.6,app,"Isolation Forest, PCA",6,0,True,40.6,Alert
+2,overload,2026-11-26 09:05:19.998+00:00,2026-11-26 09:06:20.584+00:00,True,40.1,nginx,"Isolation Forest, PCA",6,0,True,40.1,Alert
+3,ssh,2026-11-26 09:13:20.585+00:00,2026-11-26 09:14:18.718+00:00,True,40.0,ssh,Isolation Forest,1,1,True,40.0,"Alert, New template"
+4,db,2026-11-26 09:21:18.719+00:00,2026-11-26 09:22:19.028+00:00,True,45.5,app,"Isolation Forest, PCA",6,0,True,45.5,Alert
+5,overload,2026-11-26 09:29:19.028+00:00,2026-11-26 09:30:19.537+00:00,True,41.0,nginx,"Isolation Forest, PCA",5,0,True,41.0,Alert
+6,ssh,2026-11-26 09:37:19.538+00:00,2026-11-26 09:38:17.683+00:00,True,42.0,ssh,Isolation Forest,2,0,True,42.0,Alert
+7,db,2026-11-26 09:45:17.683+00:00,2026-11-26 09:46:18.023+00:00,True,46.1,app,"Isolation Forest, PCA",6,0,True,46.1,Alert
+8,overload,2026-11-26 09:53:18.024+00:00,2026-11-26 09:54:18.330+00:00,True,42.0,app,"Isolation Forest, PCA",5,0,True,42.0,Alert
+9,ssh,2026-11-26 10:01:18.331+00:00,2026-11-26 10:02:16.433+00:00,True,42.0,ssh,Isolation Forest,2,0,True,42.0,Alert
+10,db,2026-11-26 10:09:16.433+00:00,2026-11-26 10:10:16.591+00:00,True,45.3,app,"Isolation Forest, PCA",5,1,True,45.3,"Alert, New template"
+11,overload,2026-11-26 10:17:16.591+00:00,2026-11-26 10:18:16.930+00:00,True,43.5,nginx,"Isolation Forest, PCA",5,0,True,43.5,Alert
+12,ssh,2026-11-26 10:25:16.931+00:00,2026-11-26 10:26:15.064+00:00,True,108.9,ssh,Isolation Forest,1,1,True,44.0,"Alert, New template"
+13,db,2026-11-26 10:33:15.064+00:00,2026-11-26 10:34:15.264+00:00,True,45.6,app,"Isolation Forest, PCA",6,0,True,45.6,Alert
+14,overload,2026-11-26 10:41:15.264+00:00,2026-11-26 10:42:15.625+00:00,True,44.8,nginx,"Isolation Forest, PCA",5,0,True,44.8,Alert
+15,ssh,2026-11-26 10:49:15.625+00:00,2026-11-26 10:50:13.743+00:00,True,46.0,ssh,Isolation Forest,1,1,True,46.0,"Alert, New template"

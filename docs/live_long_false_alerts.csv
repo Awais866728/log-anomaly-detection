@@ -1,0 +1,9 @@
+packs,service,windows,hours,alerts,new_template_warnings,PCA,Isolation Forest,LSTM
+current,nginx,60,1.0,0,0,0,0,0
+current,app,60,1.0,0,0,0,0,0
+current,postgres,60,1.0,0,0,0,0,0
+current,ssh,30,1.0,1,0,1,1,0
+long,nginx,60,1.0,0,0,0,0,0
+long,app,60,1.0,0,0,0,0,0
+long,postgres,60,1.0,1,0,1,0,0
+long,ssh,30,1.0,0,0,0,0,0

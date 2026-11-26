@@ -9,7 +9,8 @@ pack is still shown on the live log page but not scored.
 Endpoints: GET /api/logs, /api/alerts, /api/stats, /api/models, /api/packs, /api/system, /health and GET /api/events
 (server-sent events: "logs", "alert" and "stats"). /api/system has the container state from `docker compose ps`, log
 lines per minute per service and the pipeline status. /api/logs keeps the last lines per source, so a fast
-replay doesn't push the live services out. Set ALERT_LOG=<path> to also keep every alert in a JSON-lines file.
+replay doesn't push the live services out. Set ALERT_LOG=<path> to also keep every alert in a JSON-lines file, and
+LIVE_PACK_SUFFIX=_long to load the live packs trained on the long normal run (models/stream_<service>_long.joblib).
 """
 
 import asyncio
@@ -38,6 +39,8 @@ START_ID = os.environ.get("STREAM_START", "$")  # "$" = only new entries, "0" = 
 HDFS_IDLE = float(os.environ.get("HDFS_IDLE_SECONDS", 4 * 3600))
 DEDUPE_NEW_TEMPLATES = os.environ.get("DEDUPE_NEW_TEMPLATES", "1") == "1"
 ALERT_LOG = os.environ.get("ALERT_LOG")  # if set: append every alert to this file as one JSON line
+# live packs to load: models/stream_<service><suffix>.joblib; "" = the default set, "_long" = trained on the long run
+LIVE_PACK_SUFFIX = os.environ.get("LIVE_PACK_SUFFIX", "")
 # SHAP and predict_proba get numpy rows; the models were fitted on DataFrames
 warnings.filterwarnings("ignore", message="X does not have valid feature names")
 SOURCE_LABEL = {s: f"{s} (replay)" for s in REPLAY_SOURCES}
@@ -52,7 +55,8 @@ class Detector:
 
     def __init__(self):
         self.started = time.time()
-        self.packs = {s: Pack.load(s) for s in REPLAY_SOURCES + LIVE_SERVICES if pack_path(s).exists()}
+        names = {s: s + (LIVE_PACK_SUFFIX if s in LIVE_SERVICES else "") for s in REPLAY_SOURCES + LIVE_SERVICES}
+        self.packs = {s: Pack.load(name) for s, name in names.items() if pack_path(name).exists()}
         self.windows = {s: self._new_windows(s) for s in self.packs}
         self.logs = {}  # source label -> its last MAX_LOGS lines
         self.alerts = {}  # source label -> its last MAX_ALERTS alerts, newest first
@@ -296,7 +300,8 @@ class Detector:
         return [{"source": s, "label": SOURCE_LABEL.get(s, s), "mode": p.mode, "dataset": p.dataset,
                  "models": list(p.detectors), "settings": p.settings, "templates": len(p.event_cols),
                  "train_windows": getattr(p, "train_windows", None), "window": window.get(s, "1 minute"),
-                 "labelled": getattr(p, "labelled", p.mode == "replay"), "settings_from": getattr(p, "settings_from", None)}
+                 "labelled": getattr(p, "labelled", p.mode == "replay"), "settings_from": getattr(p, "settings_from", None),
+                 "trained_on": getattr(p, "trained_on", None)}
                 for s, p in self.packs.items()]
 
     def broadcast(self, event, data):

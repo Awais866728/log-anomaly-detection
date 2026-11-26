@@ -1,0 +1,4 @@
+scenario,runs,detected,detection_rate,median_latency_s,min_latency_s,max_latency_s,detected_incl_new_template,median_latency_incl_new_template_s,PCA runs,Isolation Forest runs,LSTM runs
+db,5,5,1.0,45.5,40.6,46.1,5,45.5,5,5,0
+overload,5,5,1.0,42.0,40.1,44.8,5,42.0,5,5,0
+ssh,5,5,1.0,42.0,40.0,108.9,5,42.0,0,5,0

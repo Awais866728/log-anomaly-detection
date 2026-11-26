@@ -15,10 +15,13 @@ counts of normal training windows, and (replay) the Random Forest used for SHAP 
 Build:  python -m src.streaming.packs replay        (HDFS and BGL, about 10 minutes)
         python -m src.streaming.packs replay --datasets OpenSSH Apache
         python -m src.streaming.packs live --label normal
+        python -m src.streaming.packs live --dir data/raw/live_long/train --suffix _long   # a second set of live
+            packs (models/stream_<service>_long.joblib); the detection service loads it with LIVE_PACK_SUFFIX=_long
 """
 
 import argparse
 import time
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -197,8 +200,9 @@ def live_windows(service, path):
     return parser, windows + windower.flush()
 
 
-def build_live_pack(service, label="normal"):
-    path = LIVE_DIR / f"{service}_{label}.log"
+def build_live_pack(service, label="normal", log_dir=LIVE_DIR, suffix=""):
+    """Live pack from <log_dir>/<service>_<label>.log, saved as models/stream_<service><suffix>.joblib."""
+    path = Path(log_dir) / f"{service}_{label}.log"
     parser, windows = live_windows(service, path)
     event_cols = [f"E{c.cluster_id}" for c in parser.miner.drain.clusters]
     index = {e: i for i, e in enumerate(event_cols)}
@@ -227,8 +231,8 @@ def build_live_pack(service, label="normal"):
             "normal_mean": X.mean(axis=0) if len(windows) else np.zeros(len(event_cols)),
             "unseen": np.zeros(len(event_cols), dtype=bool), "detectors": packed, "background": None,
             "settings": {name: (f"percentile {d['percentile']:g}" if "percentile" in d else f"k {d['k']}") for name, d in packed.items()},
-            "train_windows": len(windows)}
-    joblib.dump(pack, pack_path(service))
+            "train_windows": len(windows), "trained_on": str(Path(path).resolve().relative_to(ROOT))}
+    joblib.dump(pack, pack_path(service + suffix))
     lines = sum(w.n_lines for w in windows)
     print(f"{service:9s} {lines:6,} lines, {len(windows):3d} windows, {len(event_cols):3d} templates, "
           f"models: {', '.join(packed) or 'none (too few windows, new-template warnings only)'}")
@@ -386,6 +390,8 @@ def main():
     replay.add_argument("--datasets", nargs="+", default=["HDFS", "BGL"], choices=["HDFS", "BGL", "OpenSSH", "Apache"])
     live = sub.add_parser("live")
     live.add_argument("--label", default="normal")
+    live.add_argument("--dir", default=str(LIVE_DIR), help="folder with <service>_<label>.log (default data/raw/live)")
+    live.add_argument("--suffix", default="", help="saved as models/stream_<service><suffix>.joblib, e.g. _long")
     args = parser.parse_args()
     MODELS.mkdir(exist_ok=True)
     if args.mode == "replay":
@@ -396,7 +402,7 @@ def main():
                 build_replay_pack(dataset)
     else:
         for service in LIVE_SERVICES:
-            build_live_pack(service, args.label)
+            build_live_pack(service, args.label, args.dir, args.suffix)
 
 
 if __name__ == "__main__":
